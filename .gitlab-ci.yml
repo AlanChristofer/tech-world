@@ -1,0 +1,35 @@
+stages: [test, build, container]
+
+backend-test:
+  stage: test
+  image: maven:3.9.11-eclipse-temurin-21
+  script: ["mvn -B test"]
+
+frontend-test:
+  stage: test
+  image: node:22-alpine
+  before_script: ["cd frontend", "npm ci"]
+  script: ["npm test"]
+
+backend-build:
+  stage: build
+  image: maven:3.9.11-eclipse-temurin-21
+  script: ["mvn -B -DskipTests package"]
+  artifacts:
+    paths: ["target/*.jar"]
+
+frontend-build:
+  stage: build
+  image: node:22-alpine
+  before_script: ["cd frontend", "npm ci"]
+  script: ["npm run build"]
+
+docker-build:
+  stage: container
+  image: docker:28-cli
+  services: ["docker:28-dind"]
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - docker build -f backend/Dockerfile -t developer-command-center-api:$CI_COMMIT_SHA .
+    - docker build -f frontend/Dockerfile -t developer-command-center-web:$CI_COMMIT_SHA .

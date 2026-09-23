@@ -1,0 +1,9 @@
+.git
+.idea
+.vscode
+.env
+target
+frontend/node_modules
+frontend/.next
+frontend/*.tsbuildinfo
+*.log
