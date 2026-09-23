@@ -59,4 +59,4 @@ Kafka e PostgreSQL não fazem parte do runtime: serão adicionados somente quand
 
 Perfil, links, experiências e projetos podem ser atualizados pelos endpoints `/api/admin/**` com token obtido em `POST /api/auth/login`. Nenhum segredo deve ser enviado ao frontend ou versionado.
 
-Para o avatar personalizado, coloque o arquivo em `frontend/public/models/avatar.glb`; a experiência possui fallback automático.
+O avatar oficial está em `frontend/public/models/model.glb`; a experiência possui fallback automático.
