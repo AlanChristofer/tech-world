@@ -18,7 +18,9 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.mongodb.MongoDBContainer;
+import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers(disabledWithoutDocker = true)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -26,10 +28,13 @@ import org.testcontainers.mongodb.MongoDBContainer;
 class PortfolioApiIntegrationTest {
     @Container
     static final MongoDBContainer mongo = new MongoDBContainer("mongo:8.0");
+    @Container
+    static final KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("apache/kafka-native:3.9.1"));
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {
         registry.add("spring.mongodb.uri", mongo::getReplicaSetUrl);
+        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
         registry.add("portfolio.admin.password", () -> "test-password");
     }
 

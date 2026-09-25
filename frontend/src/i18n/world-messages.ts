@@ -10,6 +10,7 @@ export const worldCopy = {
       architecture: { title: "Arquitetura", subtitle: "Por dentro do sistema" },
       contact: { title: "Contato", subtitle: "Vamos conversar" },
       recruiter: { title: "Modo Recrutador", subtitle: "Visão executiva" },
+      "java-lab": { title: "Java Engineering Lab", subtitle: "Backend em ação" },
     },
     global: {
       kicker: "Explore meu universo profissional", role: "Desenvolvedor de Software",
@@ -56,6 +57,7 @@ export const worldCopy = {
       architecture: { title: "Architecture", subtitle: "Inside the system" },
       contact: { title: "Contact", subtitle: "Let's talk" },
       recruiter: { title: "Recruiter Mode", subtitle: "Executive view" },
+      "java-lab": { title: "Java Engineering Lab", subtitle: "Backend in action" },
     },
     global: {
       kicker: "Explore my professional universe", role: "Software Developer",

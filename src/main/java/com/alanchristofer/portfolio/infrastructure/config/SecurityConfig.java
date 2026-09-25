@@ -46,7 +46,8 @@ public class SecurityConfig {
                 .frameOptions(frame -> frame.sameOrigin()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/api/profile", "/api/skills", "/api/experiences",
-                    "/api/projects", "/api/projects/*", "/api/architecture", "/api/health").permitAll()
+                    "/api/projects", "/api/projects/*", "/api/architecture", "/api/health", "/api/lab/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/lab/orders").permitAll()
                 .requestMatchers("/api/auth/login", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/health").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/actuator/prometheus").hasRole("ADMIN")
@@ -86,6 +87,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.stream(origins.split(",")).map(String::trim).toList());
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type"));
+        configuration.setExposedHeaders(java.util.List.of("X-Trace-Id"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

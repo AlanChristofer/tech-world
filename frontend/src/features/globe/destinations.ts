@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
-import { Boxes, BriefcaseBusiness, Database, Globe2, Heart, Mail, Network, UserRound } from "lucide-react";
+import { Boxes, BriefcaseBusiness, Coffee, Database, Globe2, Heart, Mail, Network, UserRound } from "lucide-react";
 
-export type DestinationId = "global" | "about" | "career" | "projects" | "skills" | "architecture" | "contact";
+export type DestinationId = "global" | "about" | "career" | "projects" | "skills" | "architecture" | "contact" | "java-lab";
 
 export type Destination = {
   id: DestinationId;
@@ -32,10 +32,11 @@ export const destinations: Destination[] = [
   { id: "career", latitude: 30, longitude: 53, labelOffset: [52, -8], icon: BriefcaseBusiness },
   { id: "contact", latitude: 21, longitude: -170, labelOffset: [-54, 16], icon: Mail },
   { id: "about", latitude: 4, longitude: 105, labelOffset: [54, -8], icon: Heart },
+  { id: "java-lab", latitude: 62, longitude: -120, labelOffset: [-62, -22], icon: Coffee },
 ];
 
 export const globeMarkers: GlobeMarker[] = [
-  // Fourteen evenly distributed points preserve comfortable spacing after adding About.
+  // Repeated destinations stay spread across both hemispheres to avoid marker clusters.
   { key: "projects-1", id: "projects", latitude: 68, longitude: 0, labelOffset: [-48, -30], icon: Boxes, color: "#ff6b6b" },
   { key: "skills-1", id: "skills", latitude: 52, longitude: 138, labelOffset: [48, -26], icon: Database, color: "#56c8ff" },
   { key: "architecture-1", id: "architecture", latitude: 40, longitude: -85, labelOffset: [-58, -8], icon: Network, color: "#aa8cff" },
@@ -50,6 +51,8 @@ export const globeMarkers: GlobeMarker[] = [
   { key: "contact-2", id: "contact", latitude: -40, longitude: 73, labelOffset: [46, 22], icon: Mail, color: "#ff78c6" },
   { key: "recruiter-2", id: "recruiter", latitude: -52, longitude: -150, labelOffset: [-50, 24], icon: UserRound, color: "#55f6cf", href: "/recruiter" },
   { key: "about-2", id: "about", latitude: -68, longitude: -13, labelOffset: [44, 28], icon: Heart, color: "#ff9f68" },
+  { key: "java-lab-1", id: "java-lab", latitude: 62, longitude: -120, labelOffset: [-62, -22], icon: Coffee, color: "#8cff78" },
+  { key: "java-lab-2", id: "java-lab", latitude: -62, longitude: 112, labelOffset: [52, 25], icon: Coffee, color: "#8cff78" },
 ];
 
 export const destinationIds = destinations.map(({ id }) => id);

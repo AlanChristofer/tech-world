@@ -9,6 +9,7 @@ import { FaGithub as Github, FaLinkedin as Linkedin } from "react-icons/fa";
 import { SkillIcon } from "@/components/skill-icon";
 import { useI18n } from "@/i18n/language-context";
 import { worldCopy } from "@/i18n/world-messages";
+import { JavaEngineeringLab } from "@/features/lab/java-engineering-lab";
 import type { Experience, PortfolioData, Project } from "@/types/portfolio";
 import { isDestinationId, type DestinationId } from "./destinations";
 import { useGlobeTravel } from "./globe-travel";
@@ -351,6 +352,7 @@ function DestinationPanel({ selected, data, select, mode, onMinimize, onToggleEx
     {selected === "career" && <CareerPanel experiences={data.experiences} />}
     {selected === "architecture" && <ArchitectureGlobePanel />}
     {selected === "contact" && <ContactPanel data={data} />}
+    {selected === "java-lab" && <JavaEngineeringLab />}
   </aside>;
 }
 
@@ -387,7 +389,7 @@ export function TechWorld({ data }: { data: PortfolioData }) {
           <span className="globe-guidebar-zoom"><kbd>SCROLL</kbd><small>{language === "pt-BR" ? "Zoom" : "Zoom"}</small></span>
         </div>
       </div>
-      {(destinationOpen || panelClosing) && selected !== "global" && !panelClosed && <DestinationPanel selected={selected} data={data} select={select} mode={panelMode === "closed" ? "normal" : panelMode} onMinimize={() => setPanelMode("minimized")} onToggleExpanded={() => setPanelMode((current) => current === "expanded" ? "normal" : "expanded")} onClose={closePanel} />}
+      {(destinationOpen || panelClosing) && selected !== "global" && !panelClosed && <DestinationPanel selected={selected} data={data} select={select} mode={panelMode} onMinimize={() => setPanelMode("minimized")} onToggleExpanded={() => setPanelMode((current) => current === "expanded" ? "normal" : "expanded")} onClose={closePanel} />}
     </div>
   </section>;
 }

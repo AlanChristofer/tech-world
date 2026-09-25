@@ -2,6 +2,23 @@
 
 Mapa curto dos conceitos que aparecem **neste projeto**.
 
+## Java Engineering Lab
+
+Estas relações ajudam a navegar pelo laboratório, mas são apenas aproximações didáticas:
+
+| Spring / Java | Aproximação no Laravel |
+|---|---|
+| Spring Controller | Laravel Controller |
+| Bean Validation | Form Request Validation |
+| Use Case | Application Service / Service |
+| Port | Interface / Contract |
+| Adapter | Infrastructure Implementation |
+| MongoRepository | Repository / persistência de Model |
+| Spring Security | Middleware / Auth |
+| Kafka Consumer | Queue Listener / Job Consumer |
+
+No fluxo de pedidos, `OrderLabController` recebe o contrato HTTP, `OrderLabService` coordena a operação por portas e os adapters implementam MongoDB e Kafka. O domínio não conhece framework, banco ou transporte.
+
 | Laravel / PHP | Spring Boot / Java neste projeto |
 |---|---|
 | Controller | `@RestController`; traduz HTTP e delega ao caso de uso |

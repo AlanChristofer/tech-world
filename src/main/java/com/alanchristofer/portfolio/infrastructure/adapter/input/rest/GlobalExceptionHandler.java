@@ -2,6 +2,7 @@ package com.alanchristofer.portfolio.infrastructure.adapter.input.rest;
 
 import com.alanchristofer.portfolio.domain.exception.ConflictException;
 import com.alanchristofer.portfolio.domain.exception.InvalidCredentialsException;
+import com.alanchristofer.portfolio.domain.exception.LabExecutionException;
 import com.alanchristofer.portfolio.domain.exception.ResourceNotFoundException;
 import com.alanchristofer.portfolio.infrastructure.adapter.input.rest.dto.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,6 +35,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidCredentialsException.class)
     ResponseEntity<ApiError> unauthorized(InvalidCredentialsException exception, HttpServletRequest request) {
         return error(HttpStatus.UNAUTHORIZED, exception.getMessage(), request, Map.of());
+    }
+
+    @ExceptionHandler(LabExecutionException.class)
+    ResponseEntity<ApiError> labUnavailable(LabExecutionException exception, HttpServletRequest request) {
+        return error(HttpStatus.SERVICE_UNAVAILABLE, exception.getMessage(), request, Map.of());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

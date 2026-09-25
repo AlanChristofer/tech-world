@@ -8,7 +8,7 @@ import type { WorldCopy } from "@/i18n/world-messages";
 import { globeMarkers, type DestinationId, type GlobeMarker as GlobeMarkerData, type MarkerDestinationId } from "./destinations";
 import { getTravelTimings, type GlobeNavigation, type TravelLocation } from "./globe-travel";
 
-const markerSubtitles: Partial<Record<MarkerDestinationId, string>> = { about: "PERSONAL STORY", projects: "PROJECT HUB", skills: "TECH DISTRICT", career: "CAREER ROUTE", architecture: "SYSTEM CORE", contact: "COMMUNICATION POINT", recruiter: "EXECUTIVE VIEW" };
+const markerSubtitles: Partial<Record<MarkerDestinationId, string>> = { about: "PERSONAL STORY", projects: "PROJECT HUB", skills: "TECH DISTRICT", career: "CAREER ROUTE", architecture: "SYSTEM CORE", contact: "COMMUNICATION POINT", recruiter: "EXECUTIVE VIEW", "java-lab": "BACKEND IN ACTION" };
 const sphereRadius = 2;
 const routeSurfaceRadius = sphereRadius + 0.085;
 const exploreDistance = 6.85;
