@@ -1,5 +1,7 @@
-import { ContactView } from "@/components/localized-views";
-import { getPortfolioData } from "@/services/api";
+import { redirect } from "next/navigation";
 
 export const metadata = { title: "Contato / Contact" };
-export default async function ContactPage() { const { profile } = await getPortfolioData(); return <ContactView profile={profile} />; }
+
+export default function ContactPage() {
+  redirect("/?destination=contact");
+}

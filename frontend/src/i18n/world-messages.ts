@@ -1,0 +1,96 @@
+export const worldCopy = {
+  "pt-BR": {
+    nav: { global: "Início", about: "Sobre mim", career: "Trajetória", projects: "Projetos", skills: "Habilidades", architecture: "Arquitetura", contact: "Contato", recruiter: "Modo Recrutador" },
+    destinations: {
+      global: { title: "Visão Global", subtitle: "Explore o universo" },
+      about: { title: "Sobre mim", subtitle: "Quem sou" },
+      career: { title: "Trajetória", subtitle: "Minha jornada" },
+      projects: { title: "Projetos", subtitle: "Soluções reais" },
+      skills: { title: "Habilidades", subtitle: "Tech stack" },
+      architecture: { title: "Arquitetura", subtitle: "Por dentro do sistema" },
+      contact: { title: "Contato", subtitle: "Vamos conversar" },
+      recruiter: { title: "Modo Recrutador", subtitle: "Visão executiva" },
+    },
+    global: {
+      kicker: "Explore meu universo profissional", role: "Desenvolvedor de Software",
+      specialties: "Backend • Full Stack • APIs • Arquitetura",
+      summary: "Transformando problemas em soluções através de tecnologia, código e propósito.",
+      start: "Iniciar jornada", years: "anos de experiência", projects: "projetos principais", technologies: "tecnologias",
+      quote: "Tecnologia é o meio, impacto é o objetivo.", current: "Destino atual", explore: "Explorar projeto", architecture: "Ver arquitetura",
+    },
+    projects: {
+      kicker: "Project Hub", title: "Projetos", intro: "Projetos reais, desafios reais, soluções que geram valor. Cada projeto representa um problema, uma solução e um aprendizado.", count: "projetos",
+      featuredDescription: "Plataforma Full Stack de karaokê para gerenciamento de sessões, fila de participantes, pesquisa de músicas, avaliação vocal, pontuação, ranking e histórico.",
+      status: "Em produção", subtitle: "Sistema de karaokê com pontuação", featuredShort: "Plataforma para cantar, se divertir e competir com amigos. Já em produção.", access: "Explorar projeto", case: "Ver case técnico", details: "Ver detalhes",
+      features: ["Gerenciamento de sessões e fila", "Pesquisa de músicas e avaliação vocal", "Pontuação, ranking e histórico", "YouTube API e Mercado Pago"],
+      nexo: "Controle financeiro pessoal", nexoStatus: "Em desenvolvimento", vida: "Sistema de Gestão Hospitalar", vidaStatus: "Projeto acadêmico",
+    },
+    skills: {
+      kicker: "Tech district", title: "Habilidades", intro: "Tecnologias aplicadas em diferentes contextos da minha trajetória, experiência profissional e projetos.",
+      categories: [
+        { name: "Backend", items: ["Java", "Spring Boot", "C#", ".NET", "PHP", "Laravel", "Node.js", "Python"] },
+        { name: "Frontend", items: ["JavaScript", "TypeScript", "React", "Next.js", "HTML", "CSS", "TailwindCSS", "Vite"] },
+        { name: "Database", items: ["SQL Server", "PostgreSQL", "MongoDB"] },
+        { name: "Architecture & Integration", items: ["REST API", "Kafka", "OpenAPI", "Swagger"] },
+        { name: "DevOps & Tools", items: ["Git", "GitFlow", "Jenkins", "Docker", "Kubernetes", "GitLab CI/CD"] },
+      ],
+    },
+    career: { kicker: "Rota profissional", title: "Trajetória", intro: "Da operação ao desenvolvimento de software.", present: "Hoje" },
+    about: { kicker: "História pessoal", title: "Sobre mim", intro: "A pessoa, os valores e os objetivos por trás do código." },
+    architecture: {
+      kicker: "System core", title: "Arquitetura", intro: "Uma visão transparente das decisões técnicas que sustentam este portfólio.",
+      flow: ["Next.js", "REST API", "Java 21 / Spring Boot", "Use Cases", "Ports", "Adapters", "MongoDB"],
+      active: "Você está utilizando este sistema agora.", map: "Ver arquitetura", swagger: "Abrir Swagger", lab: "Developer Lab",
+    },
+    contact: { kicker: "Communication point", title: "Vamos conversar", intro: "Estou aberto a oportunidades, boas conversas técnicas e projetos com impacto real.", linkedin: "Conectar no LinkedIn", github: "Ver GitHub" },
+    travel: "Viajando para", hint: "Arraste para explorar • role para aproximar", online: "Sistema online", back: "Voltar ao globo",
+  },
+  "en-US": {
+    nav: { global: "Home", about: "About me", career: "Career", projects: "Projects", skills: "Skills", architecture: "Architecture", contact: "Contact", recruiter: "Recruiter Mode" },
+    destinations: {
+      global: { title: "Global View", subtitle: "Explore the universe" },
+      about: { title: "About me", subtitle: "Who I am" },
+      career: { title: "Career", subtitle: "My journey" },
+      projects: { title: "Projects", subtitle: "Real solutions" },
+      skills: { title: "Skills", subtitle: "Tech stack" },
+      architecture: { title: "Architecture", subtitle: "Inside the system" },
+      contact: { title: "Contact", subtitle: "Let's talk" },
+      recruiter: { title: "Recruiter Mode", subtitle: "Executive view" },
+    },
+    global: {
+      kicker: "Explore my professional universe", role: "Software Developer",
+      specialties: "Backend • Full Stack • APIs • Architecture",
+      summary: "Turning problems into solutions through technology, code, and purpose.",
+      start: "Start journey", years: "years of experience", projects: "main projects", technologies: "technologies",
+      quote: "Technology is the means; impact is the goal.", current: "Current destination", explore: "Explore project", architecture: "View architecture",
+    },
+    projects: {
+      kicker: "Project Hub", title: "Projects", intro: "Real projects, real challenges, solutions that create value. Each project represents a problem, a solution, and a lesson learned.", count: "projects",
+      featuredDescription: "A Full Stack karaoke platform for managing sessions, participant queues, song search, vocal evaluation, scoring, rankings, and history.",
+      status: "In production", subtitle: "Karaoke system with scoring", featuredShort: "A platform to sing, have fun, and compete with friends. Already in production.", access: "Explore project", case: "View technical case", details: "View details",
+      features: ["Session and queue management", "Song search and vocal evaluation", "Scoring, rankings, and history", "YouTube API and Mercado Pago"],
+      nexo: "Personal finance control", nexoStatus: "In development", vida: "Hospital Management System", vidaStatus: "Academic project",
+    },
+    skills: {
+      kicker: "Tech district", title: "Skills", intro: "Technologies applied in different contexts throughout my journey, professional experience, and projects.",
+      categories: [
+        { name: "Backend", items: ["Java", "Spring Boot", "C#", ".NET", "PHP", "Laravel", "Node.js", "Python"] },
+        { name: "Frontend", items: ["JavaScript", "TypeScript", "React", "Next.js", "HTML", "CSS", "TailwindCSS", "Vite"] },
+        { name: "Database", items: ["SQL Server", "PostgreSQL", "MongoDB"] },
+        { name: "Architecture & Integration", items: ["REST API", "Kafka", "OpenAPI", "Swagger"] },
+        { name: "DevOps & Tools", items: ["Git", "GitFlow", "Jenkins", "Docker", "Kubernetes", "GitLab CI/CD"] },
+      ],
+    },
+    career: { kicker: "Professional route", title: "Career", intro: "From operations to software development.", present: "Today" },
+    about: { kicker: "Personal story", title: "About me", intro: "The person, values, and goals behind the code." },
+    architecture: {
+      kicker: "System core", title: "Architecture", intro: "A transparent view of the technical decisions that support this portfolio.",
+      flow: ["Next.js", "REST API", "Java 21 / Spring Boot", "Use Cases", "Ports", "Adapters", "MongoDB"],
+      active: "You are using this system right now.", map: "View architecture", swagger: "Open Swagger", lab: "Developer Lab",
+    },
+    contact: { kicker: "Communication point", title: "Let's talk", intro: "I'm open to opportunities, thoughtful technical conversations, and projects with real impact.", linkedin: "Connect on LinkedIn", github: "View GitHub" },
+    travel: "Travelling to", hint: "Drag to explore • scroll to zoom", online: "System online", back: "Back to globe",
+  },
+} as const;
+
+export type WorldCopy = (typeof worldCopy)[keyof typeof worldCopy];

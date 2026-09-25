@@ -84,27 +84,29 @@ public class DevelopmentDataSeeder implements ApplicationRunner {
         List<Experience> current = content.findExperiences();
         boolean synchronizedData = current.size() == 3
             && current.stream().allMatch(item -> "PLANSUL – Planejamento e Consultoria".equals(item.company()) && expectedRoles.contains(item.role()))
-            && current.stream().filter(item -> "Analista de Tráfego Pleno".equals(item.role())).allMatch(item -> item.technologies().isEmpty());
+            && current.stream().filter(item -> "Analista de Tráfego Pleno".equals(item.role())).allMatch(item -> item.startYear() == 2022 && Integer.valueOf(2023).equals(item.endYear()) && item.technologies().isEmpty())
+            && current.stream().filter(item -> "Analista de Desenvolvimento de Sistemas Júnior / Git Master".equals(item.role())).allMatch(item -> item.startYear() == 2023 && Integer.valueOf(2025).equals(item.endYear()))
+            && current.stream().filter(item -> "Analista de Desenvolvimento de Sistemas Pleno".equals(item.role())).allMatch(item -> item.startYear() == 2025 && item.endYear() == null && item.technologies().containsAll(List.of("Java", "Spring Boot")));
         if (synchronizedData) return;
         current.forEach(item -> content.deleteExperience(item.id()));
         content.saveExperience(new Experience(null, "PLANSUL – Planejamento e Consultoria", "Analista de Tráfego Pleno", "Mid-level Traffic Analyst",
             "Iniciei minha trajetória atuando diretamente com a operação de contact center, acompanhando atendimento, pausas, produtividade e indicadores operacionais. Nesse período comecei a desenvolver painéis e ferramentas internas para resolver problemas reais da operação. O impacto dessas soluções contribuiu diretamente para minha transição para a equipe de Desenvolvimento.",
             "I began my career working directly with contact center operations, monitoring service, breaks, productivity, and operational indicators. During this period, I started developing dashboards and internal tools to solve real operational problems. The impact of these solutions directly contributed to my transition to the Development team.",
-            2021, 2023, List.of(),
+            2022, 2023, List.of(),
             List.of("Acompanhamento de operadores, ligações e pausas", "Painéis internos", "Produtividade", "TMA", "SLA", "Nível de atendimento", "Qualidade", "Turnover", "Chats e ferramentas internas"),
             List.of("Monitoring operators, calls, and breaks", "Internal dashboards", "Productivity", "Average handling time", "SLA", "Service level", "Quality", "Turnover", "Chats and internal tools"), 1));
         content.saveExperience(new Experience(null, "PLANSUL – Planejamento e Consultoria", "Analista de Desenvolvimento de Sistemas Júnior / Git Master", "Junior Systems Development Analyst / Git Master",
             "Passei a atuar oficialmente na equipe de Desenvolvimento, participando da criação, manutenção e evolução de aplicações corporativas Full Stack, ferramentas internas, dashboards e automações. Atuei também como Git Master em um dos sistemas da empresa, apoiando o fluxo de integração entre equipes, GitFlow, versionamento e pipelines de CI/CD com Jenkins.",
             "I officially joined the Development team, contributing to the creation, maintenance, and evolution of corporate full-stack applications, internal tools, dashboards, and automations. I also served as Git Master for one of the company’s systems, supporting cross-team integration, GitFlow, version control, and CI/CD pipelines with Jenkins.",
-            2023, 2026, List.of("JavaScript", "PHP", "Laravel", "HTML5", "CSS3", "React", "Node.js", "NestJS", "SQL Server", "PostgreSQL", "Python", "GitFlow", "Jenkins"),
+            2023, 2025, List.of("JavaScript", "PHP", "Laravel", "HTML5", "CSS3", "React", "Node.js", "NestJS", "SQL Server", "PostgreSQL", "Python", "GitFlow", "Jenkins"),
             List.of("Automações", "APIs e integrações", "Dashboards", "Participação do levantamento de requisitos à implantação"),
             List.of("Automations", "APIs and integrations", "Dashboards", "Participation from requirements gathering through deployment"), 2));
         content.saveExperience(new Experience(null, "PLANSUL – Planejamento e Consultoria", "Analista de Desenvolvimento de Sistemas Pleno", "Mid-level Systems Development Analyst",
-            "Com a evolução para Pleno, passei a atuar com maior autonomia técnica em sistemas corporativos, novas funcionalidades, sustentação, investigação de incidentes, APIs, integrações e evolução de soluções legadas. Em 2026 também passei a integrar uma equipe dedicada a C#, ampliando minha atuação em aplicações corporativas.",
-            "After progressing to a mid-level role, I began working with greater technical autonomy across corporate systems, new features, application support, incident investigation, APIs, integrations, and legacy solution evolution. In 2026, I also joined a team dedicated to C#, broadening my work on corporate applications.",
-            2026, null, List.of("JavaScript", "PHP", "Laravel", "Node.js", "React", "C#", ".NET", "PostgreSQL", "SQL Server", "Python", "Kafka", "OpenAPI", "Swagger", "Git", "GitFlow", "Jenkins", "CI/CD"),
-            List.of("Desenvolvimento Full Stack", "Criação de APIs REST do zero", "Manutenção e evolução de APIs", "Gateways", "Integração entre sistemas", "Análise de requisitos", "Implantação", "Sustentação em produção"),
-            List.of("Full-stack development", "Building REST APIs from scratch", "API maintenance and evolution", "Gateways", "System integration", "Requirements analysis", "Deployment", "Production support"), 3));
+            "Com a evolução para Pleno em 2025, passei a atuar com maior autonomia técnica no desenvolvimento de APIs e sistemas corporativos com Java 21 e Spring Boot, além de novas funcionalidades, sustentação, investigação de incidentes, integrações e evolução de soluções legadas. Também ampliei minha atuação em aplicações C# e .NET.",
+            "After progressing to a mid-level role in 2025, I began working with greater technical autonomy on APIs and corporate systems using Java 21 and Spring Boot, alongside new features, application support, incident investigation, integrations, and legacy solution evolution. I also expanded my work with C# and .NET applications.",
+            2025, null, List.of("Java", "Spring Boot", "JavaScript", "PHP", "Laravel", "Node.js", "React", "C#", ".NET", "PostgreSQL", "SQL Server", "Python", "Kafka", "OpenAPI", "Swagger", "Git", "GitFlow", "Jenkins", "CI/CD"),
+            List.of("Desenvolvimento de APIs com Java 21 e Spring Boot", "Desenvolvimento Full Stack", "Criação de APIs REST do zero", "Manutenção e evolução de APIs", "Gateways", "Integração entre sistemas", "Análise de requisitos", "Implantação", "Sustentação em produção"),
+            List.of("API development with Java 21 and Spring Boot", "Full-stack development", "Building REST APIs from scratch", "API maintenance and evolution", "Gateways", "System integration", "Requirements analysis", "Deployment", "Production support"), 3));
     }
 
     private void seedProjects() {

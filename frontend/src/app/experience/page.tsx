@@ -1,5 +1,7 @@
-import { ExperienceView } from "@/components/localized-views";
-import { getPortfolioData } from "@/services/api";
+import { redirect } from "next/navigation";
 
 export const metadata = { title: "Experiência / Experience" };
-export default async function ExperiencePage() { const { experiences } = await getPortfolioData(); return <ExperienceView experiences={experiences} />; }
+
+export default function ExperiencePage() {
+  redirect("/?destination=career");
+}

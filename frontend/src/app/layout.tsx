@@ -5,8 +5,8 @@ import { SiteFooter, SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Alan Christofer — Software Developer", template: "%s — Alan Christofer" },
-  description: "Portfólio Full Stack com arquitetura e laboratório de API.",
+  title: { default: "Alan Christofer — Tech World", template: "%s — Alan Christofer" },
+  description: "Portfólio de Alan Christofer: desenvolvimento de software, APIs e arquitetura.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

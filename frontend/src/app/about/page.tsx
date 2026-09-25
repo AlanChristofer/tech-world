@@ -1,5 +1,7 @@
-import { AboutView } from "@/components/localized-views";
-import { getPortfolioData } from "@/services/api";
+import { redirect } from "next/navigation";
 
 export const metadata = { title: "Sobre / About" };
-export default async function AboutPage() { const { profile } = await getPortfolioData(); return <AboutView profile={profile} />; }
+
+export default function AboutPage() {
+  redirect("/?destination=about");
+}

@@ -1,5 +1,7 @@
-import { SkillsView } from "@/components/localized-views";
-import { getPortfolioData } from "@/services/api";
+import { redirect } from "next/navigation";
 
 export const metadata = { title: "Habilidades / Skills" };
-export default async function SkillsPage() { const { skills } = await getPortfolioData(); return <SkillsView skills={skills} />; }
+
+export default function SkillsPage() {
+  redirect("/?destination=skills");
+}

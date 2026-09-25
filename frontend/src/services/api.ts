@@ -2,7 +2,6 @@ import { fallbackData } from "./fallback";
 import type { Architecture, Experience, LabResult, PortfolioData, Profile, Project, Skill } from "@/types/portfolio";
 
 const serverApiUrl = process.env.API_URL ?? "http://localhost:8080";
-const browserApiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 async function get<T>(path: string, baseUrl = serverApiUrl): Promise<T> {
   const response = await fetch(`${baseUrl}${path}`, { next: { revalidate: 60 }, headers: { Accept: "application/json" } });
@@ -38,7 +37,7 @@ const allowedLabEndpoints = new Set(["/api/profile", "/api/projects", "/api/skil
 export async function runLabRequest(endpoint: string): Promise<LabResult> {
   if (!allowedLabEndpoints.has(endpoint)) throw new Error("Endpoint is not allowed in Developer Lab");
   const startedAt = performance.now();
-  const response = await fetch(`${browserApiUrl}${endpoint}`, { headers: { Accept: "application/json" } });
+  const response = await fetch(`/api/lab?endpoint=${encodeURIComponent(endpoint)}`, { cache: "no-store", headers: { Accept: "application/json" } });
   const body = await response.json().catch(() => ({ message: "Response is not JSON" }));
   return { endpoint, method: "GET", status: response.status, durationMs: Math.round(performance.now() - startedAt), body };
 }
