@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { Boxes, BriefcaseBusiness, Coffee, Database, Globe2, Heart, Mail, Network, UserRound } from "lucide-react";
 
-export type DestinationId = "global" | "about" | "career" | "projects" | "skills" | "architecture" | "contact" | "java-lab";
+export type DestinationId = "global" | "about" | "career" | "projects" | "skills" | "architecture" | "contact";
 
 export type Destination = {
   id: DestinationId;
@@ -11,7 +11,7 @@ export type Destination = {
   icon: LucideIcon;
 };
 
-export type MarkerDestinationId = Exclude<DestinationId, "global"> | "recruiter";
+export type MarkerDestinationId = Exclude<DestinationId, "global"> | "recruiter" | "java-lab";
 
 export type GlobeMarker = {
   key: string;
@@ -32,7 +32,6 @@ export const destinations: Destination[] = [
   { id: "career", latitude: 30, longitude: 53, labelOffset: [52, -8], icon: BriefcaseBusiness },
   { id: "contact", latitude: 21, longitude: -170, labelOffset: [-54, 16], icon: Mail },
   { id: "about", latitude: 4, longitude: 105, labelOffset: [54, -8], icon: Heart },
-  { id: "java-lab", latitude: 62, longitude: -120, labelOffset: [-62, -22], icon: Coffee },
 ];
 
 export const globeMarkers: GlobeMarker[] = [
@@ -51,8 +50,8 @@ export const globeMarkers: GlobeMarker[] = [
   { key: "contact-2", id: "contact", latitude: -40, longitude: 73, labelOffset: [46, 22], icon: Mail, color: "#ff78c6" },
   { key: "recruiter-2", id: "recruiter", latitude: -52, longitude: -150, labelOffset: [-50, 24], icon: UserRound, color: "#55f6cf", href: "/recruiter" },
   { key: "about-2", id: "about", latitude: -68, longitude: -13, labelOffset: [44, 28], icon: Heart, color: "#ff9f68" },
-  { key: "java-lab-1", id: "java-lab", latitude: 62, longitude: -120, labelOffset: [-62, -22], icon: Coffee, color: "#8cff78" },
-  { key: "java-lab-2", id: "java-lab", latitude: -62, longitude: 112, labelOffset: [52, 25], icon: Coffee, color: "#8cff78" },
+  { key: "java-lab-1", id: "java-lab", latitude: 62, longitude: -120, labelOffset: [-62, -22], icon: Coffee, color: "#8cff78", href: "/lab" },
+  { key: "java-lab-2", id: "java-lab", latitude: -62, longitude: 112, labelOffset: [52, 25], icon: Coffee, color: "#8cff78", href: "/lab" },
 ];
 
 export const destinationIds = destinations.map(({ id }) => id);

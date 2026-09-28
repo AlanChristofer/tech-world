@@ -9,7 +9,6 @@ import { FaGithub as Github, FaLinkedin as Linkedin } from "react-icons/fa";
 import { SkillIcon } from "@/components/skill-icon";
 import { useI18n } from "@/i18n/language-context";
 import { worldCopy } from "@/i18n/world-messages";
-import { JavaEngineeringLab } from "@/features/lab/java-engineering-lab";
 import type { Experience, PortfolioData, Project } from "@/types/portfolio";
 import { isDestinationId, type DestinationId } from "./destinations";
 import { useGlobeTravel } from "./globe-travel";
@@ -247,7 +246,7 @@ function ArchitecturePanel() {
   return <div className="destination-content"><PanelHeading kicker={copy.architecture.kicker} title={copy.architecture.title} intro={copy.architecture.intro} />
     <div className="architecture-experience"><div className="architecture-route"><button type="button" className={active === 0 ? "active" : ""} onClick={() => setActive(0)}><span>Frontend</span><strong>Next.js</strong><small>Frontend Experience</small></button><i>↓</i><button type="button" className={active === 1 ? "active" : ""} onClick={() => setActive(1)}><span>API</span><strong>REST API</strong><small>Comunicação e contratos</small></button><i>↓</i><section className="architecture-core"><span>Application Core</span><button type="button" className={active === 2 ? "active" : ""} onClick={() => setActive(2)}><strong>Java 21 + Spring Boot</strong></button><div><button type="button" className={active === 3 ? "active" : ""} onClick={() => setActive(3)}>Use Cases</button><button type="button" className={active === 4 ? "active" : ""} onClick={() => setActive(4)}>Ports</button></div></section><i>↓</i><section className="architecture-infrastructure"><span>Infrastructure</span><button type="button" className={active === 5 ? "active" : ""} onClick={() => setActive(5)}>Adapters</button><button type="button" className={active === 6 ? "active" : ""} onClick={() => setActive(6)}>MongoDB</button></section></div><aside className="architecture-detail"><span>{String(active + 1).padStart(2, "0")}</span><h3>{copy.architecture.flow[active]}</h3><strong>{details[active][0]}</strong><p>{details[active][1]}</p><small>{details[active][2]}</small></aside></div>
     <p className="system-active"><Radio size={14} /> {copy.architecture.active}</p>
-    <div className="architecture-actions"><span>{language === "pt-BR" ? "Explore a implementação" : "Explore the implementation"}</span><div><a className="primary-action" href="/swagger" target="_blank" rel="noopener noreferrer">{copy.architecture.swagger}</a><Link className="secondary-action" href="/lab">{copy.architecture.lab}</Link><Link className="secondary-action" href="/architecture">{language === "pt-BR" ? "Como foi construído?" : "How was it built?"}</Link></div></div>
+    <div className="architecture-actions"><span>{language === "pt-BR" ? "Explore a implementação" : "Explore the implementation"}</span><div><a className="primary-action" href="/swagger" target="_blank" rel="noopener noreferrer">{copy.architecture.swagger}</a><Link className="secondary-action" href="/architecture">{language === "pt-BR" ? "Como foi construído?" : "How was it built?"}</Link></div></div>
   </div>;
 }
 
@@ -299,7 +298,7 @@ function ArchitectureGlobePanel() {
         <section><span>{language === "pt-BR" ? "Tecnologias da camada" : "Layer technologies"}</span><div>{selected.tech.map((item) => <small key={item}><SkillIcon name={item} size={17} />{item}</small>)}</div></section>
       </aside>
     </div>
-    <div className="architecture-panel-actions"><nav><a className="primary-action" href="/swagger" target="_blank" rel="noopener noreferrer">{copy.architecture.swagger}</a><Link className="secondary-action" href="/lab">{copy.architecture.lab}</Link><Link className="secondary-action" href="/architecture">{language === "pt-BR" ? "Explorar arquitetura" : "Explore architecture"}</Link></nav></div>
+    <div className="architecture-panel-actions"><nav><a className="primary-action" href="/swagger" target="_blank" rel="noopener noreferrer">{copy.architecture.swagger}</a><Link className="secondary-action" href="/architecture">{language === "pt-BR" ? "Explorar arquitetura" : "Explore architecture"}</Link></nav></div>
   </div>;
 }
 
@@ -352,7 +351,6 @@ function DestinationPanel({ selected, data, select, mode, onMinimize, onToggleEx
     {selected === "career" && <CareerPanel experiences={data.experiences} />}
     {selected === "architecture" && <ArchitectureGlobePanel />}
     {selected === "contact" && <ContactPanel data={data} />}
-    {selected === "java-lab" && <JavaEngineeringLab />}
   </aside>;
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Html, OrbitControls, Stars, useTexture } from "@react-three/drei";
+import { ArcballControls, Html, Stars, useTexture } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type MutableRefObject } from "react";
 import * as THREE from "three";
@@ -477,17 +477,14 @@ export default function GlobeScene({ selected, navigation, copy, onSelect, onOri
     <directionalLight position={[4, -1, -3]} intensity={0.7} color="#35e8c0" />
     <Stars radius={34} depth={18} count={mobile ? 480 : 900} factor={2.1} saturation={0.2} fade speed={reducedMotion ? 0 : 0.25} />
     <Earth selected={selected} navigation={navigation} copy={copy} onSelect={onSelect} onOriginVisibility={onOriginVisibility} reducedMotion={reducedMotion} locked={locked} mobile={mobile} />
-    <OrbitControls
+    <ArcballControls
       enabled={!locked}
-      enableDamping
-      dampingFactor={0.075}
-      rotateSpeed={0.55}
-      zoomSpeed={0.6}
+      enableAnimations
+      dampingFactor={25}
       enablePan={false}
+      scaleFactor={1.06}
       minDistance={5.4}
       maxDistance={7.8}
-      minPolarAngle={Math.PI * 0.08}
-      maxPolarAngle={Math.PI * 0.92}
       target={[0, 0, 0]}
     />
   </Canvas>;
