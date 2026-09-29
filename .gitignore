@@ -4,6 +4,13 @@ frontend/.next/
 frontend/*.tsbuildinfo
 .env
 !.env.example
+secrets/
+!secrets/
+secrets/*
+!secrets/kafka/
+secrets/kafka/*
+!secrets/kafka/README.md
+*.pem
 *.log
 .idea/
 .vscode/

@@ -13,9 +13,12 @@ export async function GET(_request: Request, { params }: LabRouteContext) {
 
 export async function POST(request: Request, { params }: LabRouteContext) {
   const { path } = await params;
+  const headers = new Headers({ "Content-Type": request.headers.get("content-type") ?? "application/json" });
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) headers.set("X-Forwarded-For", forwardedFor);
   return proxyBackend(backendPath(path), {
     method: "POST",
     body: await request.text(),
-    headers: { "Content-Type": request.headers.get("content-type") ?? "application/json" },
+    headers,
   });
 }

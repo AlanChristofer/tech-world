@@ -13,8 +13,8 @@ public class OpenApiConfig {
     @Bean
     OpenAPI portfolioOpenApi() {
         return new OpenAPI()
-            .info(new Info().title("Developer Command Center API")
-                .description("API pública do portfólio e administração protegida."))
+            .info(new Info().title("Tech World API")
+                .description("API pública do portfólio Tech World e administração protegida."))
             .components(new Components().addSecuritySchemes("bearerAuth", new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")));
     }

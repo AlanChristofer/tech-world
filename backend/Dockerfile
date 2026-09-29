@@ -12,5 +12,5 @@ USER spring:spring
 WORKDIR /app
 COPY --from=build /workspace/target/*.jar app.jar
 EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=5s --start-period=25s --retries=3 CMD curl -fsS http://localhost:8080/api/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=25s --retries=3 CMD port="${SERVER_PORT:-${PORT:-8080}}"; curl -fsS "http://localhost:${port}/actuator/health/readiness" || exit 1
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "/app/app.jar"]

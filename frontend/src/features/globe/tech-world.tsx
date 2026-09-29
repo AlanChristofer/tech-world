@@ -21,7 +21,7 @@ const GlobeScene = dynamic(() => import("./globe-scene"), {
 const fallbackCareer: Experience[] = [
   { id: "career-1", company: "PLANSUL", role: "Analista de Tráfego Pleno", roleEn: "Mid-level Traffic Analyst", description: "O desenvolvimento de soluções para problemas reais da operação contribuiu diretamente para minha transição para Desenvolvimento.", descriptionEn: "Developing solutions for real operational problems directly contributed to my transition into Software Development.", startYear: 2022, endYear: 2023, technologies: ["Contact center", "Indicadores", "Produtividade", "TMA", "SLA", "Painéis", "Ferramentas internas"], highlights: [], highlightsEn: [], order: 1 },
   { id: "career-2", company: "PLANSUL", role: "Analista de Desenvolvimento de Sistemas Júnior · Git Master", roleEn: "Junior Systems Development Analyst · Git Master", description: "Desenvolvimento de sistemas, automações e evolução do processo de entrega.", descriptionEn: "Systems development, automation, and evolution of the delivery process.", startYear: 2023, endYear: 2025, technologies: ["PHP", "Laravel", "JavaScript", "React", "Node.js", "NestJS", "SQL Server", "PostgreSQL", "Python", "GitFlow", "Jenkins"], highlights: [], highlightsEn: [], order: 2 },
-  { id: "career-3", company: "PLANSUL", role: "Analista de Desenvolvimento de Sistemas Pleno", roleEn: "Mid-level Systems Development Analyst", description: "Desenvolvimento de APIs e sistemas corporativos com Java 21, Spring Boot, integrações, sustentação e evolução de soluções.", descriptionEn: "Development of corporate APIs and systems with Java 21, Spring Boot, integrations, support, and solution evolution.", startYear: 2025, endYear: null, technologies: ["Java", "Spring Boot", "REST API", "C#", ".NET", "PHP", "Laravel", "Node.js", "React", "Kafka", "OpenAPI", "Swagger", "PostgreSQL", "SQL Server", "Python"], highlights: [], highlightsEn: [], order: 3 },
+  { id: "career-3", company: "PLANSUL", role: "Analista de Desenvolvimento de Sistemas Pleno", roleEn: "Mid-level Systems Development Analyst", description: "Desenvolvimento e evolução de APIs e sistemas corporativos, integrações, sustentação e soluções Full Stack.", descriptionEn: "Development and evolution of corporate APIs and systems, integrations, support, and full-stack solutions.", startYear: 2025, endYear: null, technologies: ["REST API", "C#", ".NET", "PHP", "Laravel", "JavaScript", "Node.js", "React", "Kafka", "OpenAPI", "Swagger", "PostgreSQL", "SQL Server", "Python", "Git", "GitFlow", "Jenkins", "CI/CD"], highlights: [], highlightsEn: [], order: 3 },
 ];
 
 const officialProjects = {
@@ -113,13 +113,13 @@ function AboutPanel() {
     { period: "Formação", title: "Tecnólogo em Análise e Desenvolvimento de Sistemas", text: "Graduação completa e base formal para minha evolução em engenharia de software.", icon: GraduationCap },
     { period: "2022 — 2023", title: "Analista de Tráfego Pleno — Plansul", text: "Contato direto com problemas reais da operação, criação de ferramentas, dashboards e soluções internas.", icon: Compass },
     { period: "2023 — 2025", title: "Analista de Desenvolvimento de Sistemas Júnior & Git Master — Plansul", text: "Transição oficial para desenvolvimento, atuação Full Stack, APIs, automações, bancos de dados, GitFlow, Jenkins e CI/CD.", icon: Code2 },
-    { period: "2025 — Hoje", title: "Analista de Desenvolvimento de Sistemas Pleno — Plansul", text: "Maior autonomia técnica, APIs, integrações, mensageria, sustentação, Java, Spring Boot, C#/.NET e OpenAPI/Swagger.", icon: BriefcaseBusiness },
+    { period: "2025 — Hoje", title: "Analista de Desenvolvimento de Sistemas Pleno — Plansul", text: "Maior autonomia técnica em APIs, integrações, mensageria, sustentação, C#/.NET, PHP/Laravel, Node.js, React e OpenAPI/Swagger.", icon: BriefcaseBusiness },
     { period: "Hoje", title: "Evolução contínua", text: "Continuo evoluindo em Java, Spring Boot, arquitetura de software e inglês profissional.", icon: TrendingUp },
   ] : [
     { period: "Education", title: "Technology degree in Systems Analysis and Development", text: "Completed degree and a formal foundation for my growth in software engineering.", icon: GraduationCap },
     { period: "2022 — 2023", title: "Mid-level Traffic Analyst — Plansul", text: "Direct contact with real operational problems, creating tools, dashboards, and internal solutions.", icon: Compass },
     { period: "2023 — 2025", title: "Junior Systems Developer & Git Master — Plansul", text: "Official transition into development, working with full-stack applications, APIs, automation, databases, GitFlow, Jenkins, and CI/CD.", icon: Code2 },
-    { period: "2025 — Today", title: "Mid-level Systems Developer — Plansul", text: "Greater technical autonomy across APIs, integrations, messaging, support, Java, Spring Boot, C#/.NET, and OpenAPI/Swagger.", icon: BriefcaseBusiness },
+    { period: "2025 — Today", title: "Mid-level Systems Developer — Plansul", text: "Greater technical autonomy across APIs, integrations, messaging, support, C#/.NET, PHP/Laravel, Node.js, React, and OpenAPI/Swagger.", icon: BriefcaseBusiness },
     { period: "Today", title: "Continuous growth", text: "I continue developing my Java, Spring Boot, software architecture, and professional English skills.", icon: TrendingUp },
   ];
   const nextSteps = portuguese ? ["Pós-graduação em Engenharia de Software.", "Especialização em uma área da tecnologia com maior identificação.", "Evolução para posições de maior responsabilidade técnica, especialmente Pleno/Sênior.", "Inglês profissional para atuar também em ambientes internacionais."] : ["A postgraduate degree in Software Engineering.", "Specialization in the technology field I identify with most.", "Growth into roles with greater technical responsibility, especially mid-level/senior positions.", "Professional English for working confidently in international environments."];
@@ -172,7 +172,7 @@ function CareerPanel({ experiences }: { experiences: Experience[] }) {
   const [active, setActive] = useState(timeline.length - 1);
   const selected = timeline[active] ?? timeline[0];
   const sourceSkills = selected.technologies.length ? selected.technologies : fallbackCareer[0].technologies;
-  const stageSkills = active === 2 ? Array.from(new Set(["Java", "Spring Boot", ...sourceSkills])) : sourceSkills;
+  const stageSkills = sourceSkills;
   const primaryStack = stageSkills.slice(0, 9);
   const complementaryStack = stageSkills.slice(9, 17);
   const responsibilities = language === "pt-BR"
@@ -180,12 +180,12 @@ function CareerPanel({ experiences }: { experiences: Experience[] }) {
       ? ["Acompanhamento de indicadores operacionais", "Monitoramento de atendimento, pausas e produtividade", "Construção de painéis internos", "Automação de rotinas", "Análise de TMA, SLA e nível de atendimento", "Soluções para problemas reais da operação"]
       : active === 1
         ? ["Desenvolvimento e manutenção de aplicações Full Stack", "Criação de APIs e integrações", "Dashboards e automações internas", "Git Master e organização do GitFlow", "Pipelines de CI/CD com Jenkins", "Sustentação e implantação de sistemas"]
-        : ["Desenvolvimento de APIs com Java 21 e Spring Boot", "Criação e manutenção de APIs e gateways", "Sustentação de sistemas corporativos", "Evolução de soluções legadas", "Correção de incidentes e melhorias contínuas", "Participação em soluções estratégicas"]
+        : ["Criação e manutenção de APIs e gateways", "Integrações entre sistemas", "Sustentação de sistemas corporativos", "Evolução de soluções legadas", "Correção de incidentes e melhorias contínuas", "Participação em soluções estratégicas"]
     : active === 0
       ? ["Operational indicator monitoring", "Service, break, and productivity tracking", "Internal dashboard development", "Routine automation", "AHT, SLA, and service-level analysis", "Solutions for real operational problems"]
       : active === 1
         ? ["Full-stack application development and maintenance", "API and integration development", "Internal dashboards and automations", "Git Master and GitFlow organization", "CI/CD pipelines with Jenkins", "System support and deployment"]
-        : ["API development with Java 21 and Spring Boot", "API and gateway creation and maintenance", "Corporate system support", "Legacy solution evolution", "Incident resolution and continuous improvements", "Participation in strategic solutions"];
+        : ["API and gateway creation and maintenance", "System integrations", "Corporate system support", "Legacy solution evolution", "Incident resolution and continuous improvements", "Participation in strategic solutions"];
   const evolution = language === "pt-BR"
     ? active === 0 ? "Foi resolvendo problemas reais da operação que minha transição para desenvolvimento começou." : active === 1 ? "A prática diária consolidou fundamentos de desenvolvimento, colaboração e entrega contínua." : "Mais autonomia técnica, participação em projetos reais e atuação full stack."
     : active === 0 ? "Solving real operational problems is where my transition into software development began." : active === 1 ? "Daily practice consolidated development, collaboration, and continuous delivery fundamentals." : "Greater technical autonomy, participation in real projects, and full-stack work.";

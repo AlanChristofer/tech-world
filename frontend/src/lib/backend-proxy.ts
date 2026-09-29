@@ -1,4 +1,4 @@
-const fallbackBackendUrls = ["http://localhost:8081", "http://localhost:8080"];
+const fallbackBackendUrls = process.env.NODE_ENV === "production" ? [] : ["http://localhost:8081", "http://localhost:8080"];
 
 function normalizeBaseUrl(value: string) {
   return value.replace(/\/$/, "");

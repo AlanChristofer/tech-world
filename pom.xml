@@ -9,10 +9,10 @@
         <relativePath/>
     </parent>
     <groupId>com.alanchristofer</groupId>
-    <artifactId>developer-portfolio-api</artifactId>
+    <artifactId>tech-world-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Developer Command Center API</name>
-    <description>API do portfólio profissional de Alan Christofer</description>
+    <name>Tech World API</name>
+    <description>API do portfólio profissional Tech World de Alan Christofer</description>
 
     <properties>
         <java.version>21</java.version>

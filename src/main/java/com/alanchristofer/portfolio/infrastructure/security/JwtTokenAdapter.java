@@ -24,7 +24,7 @@ public class JwtTokenAdapter implements TokenPort {
     public String issue(UserAccount account) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
-            .issuer("developer-command-center")
+            .issuer("tech-world-api")
             .issuedAt(now)
             .expiresAt(now.plus(ttl))
             .subject(account.username())

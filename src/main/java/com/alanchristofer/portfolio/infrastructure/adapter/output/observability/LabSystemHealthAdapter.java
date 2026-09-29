@@ -7,19 +7,18 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LabSystemHealthAdapter implements LabSystemHealthPort {
     private final MongoTemplate mongo;
-    private final String bootstrapServers;
+    private final KafkaAdmin kafkaAdmin;
 
-    public LabSystemHealthAdapter(MongoTemplate mongo, @Value("${spring.kafka.bootstrap-servers}") String bootstrapServers) {
+    public LabSystemHealthAdapter(MongoTemplate mongo, KafkaAdmin kafkaAdmin) {
         this.mongo = mongo;
-        this.bootstrapServers = bootstrapServers;
+        this.kafkaAdmin = kafkaAdmin;
     }
 
     @Override
@@ -42,8 +41,8 @@ public class LabSystemHealthAdapter implements LabSystemHealthPort {
 
     private String kafkaStatus() {
         Properties properties = new Properties();
-        properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        properties.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, (int) Duration.ofSeconds(2).toMillis());
+        properties.putAll(kafkaAdmin.getConfigurationProperties());
+        properties.put(org.apache.kafka.clients.admin.AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, (int) Duration.ofSeconds(2).toMillis());
         try (AdminClient client = AdminClient.create(properties)) {
             return client.describeCluster().nodes().get(2, TimeUnit.SECONDS).isEmpty() ? "DOWN" : "UP";
         } catch (Exception exception) {

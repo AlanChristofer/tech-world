@@ -31,35 +31,40 @@ public class DevelopmentDataSeeder implements ApplicationRunner {
     private final PasswordHashPort passwords;
     private final String adminUsername;
     private final String adminPassword;
+    private final String seedMode;
 
     public DevelopmentDataSeeder(PortfolioContentPort content, UserAccountPort users, PasswordHashPort passwords,
                                  @Value("${portfolio.admin.username}") String adminUsername,
-                                 @Value("${portfolio.admin.password}") String adminPassword) {
+                                 @Value("${portfolio.admin.password}") String adminPassword,
+                                 @Value("${portfolio.seed.mode:bootstrap}") String seedMode) {
         this.content = content;
         this.users = users;
         this.passwords = passwords;
         this.adminUsername = adminUsername;
         this.adminPassword = adminPassword;
+        this.seedMode = seedMode;
     }
 
     @Override
     public void run(ApplicationArguments args) {
-        seedProfile();
-        seedSkills();
-        seedExperiences();
-        seedProjects();
+        boolean synchronize = "synchronize".equalsIgnoreCase(seedMode);
+        seedProfile(synchronize);
+        seedSkills(synchronize);
+        seedExperiences(synchronize);
+        seedProjects(synchronize);
         seedAdminOnlyWhenConfigured();
     }
 
-    private void seedProfile() {
+    private void seedProfile(boolean synchronize) {
         Profile current = content.findProfile().orElse(null);
+        if (!synchronize && current != null) return;
         content.saveProfile(new Profile(current == null ? "profile" : current.id(), "Alan Christofer", "Software Developer",
             "Backend • Full Stack • APIs • Arquitetura",
             "Desenvolvedor de software com experiência na criação e evolução de sistemas corporativos, APIs, integrações, automações e aplicações Full Stack.",
             current == null ? "" : current.location(), GITHUB_URL, LINKEDIN_URL, current == null ? "" : current.resumeUrl()));
     }
 
-    private void seedSkills() {
+    private void seedSkills(boolean synchronize) {
         Map<String, String> catalog = new LinkedHashMap<>();
         List.of("Java", "Spring Boot", "C#", ".NET", "PHP", "Laravel", "Node.js", "NestJS", "Python").forEach(name -> catalog.put(name, "Backend"));
         List.of("JavaScript", "TypeScript", "React", "Next.js", "HTML5", "CSS3", "TailwindCSS", "Vite").forEach(name -> catalog.put(name, "Frontend"));
@@ -68,6 +73,7 @@ public class DevelopmentDataSeeder implements ApplicationRunner {
         List.of("Git", "GitFlow", "Jenkins", "Docker", "Kubernetes", "GitLab CI/CD").forEach(name -> catalog.put(name, "DevOps / Tools"));
         List.of("Cloudflare", "Neon", "Supabase").forEach(name -> catalog.put(name, "Project technologies"));
         List<Skill> current = content.findSkills();
+        if (!synchronize && !current.isEmpty()) return;
         boolean synchronizedData = current.size() == catalog.size()
             && current.stream().allMatch(skill -> catalog.containsKey(skill.name()) && catalog.get(skill.name()).equals(skill.category()));
         if (synchronizedData) return;
@@ -79,14 +85,17 @@ public class DevelopmentDataSeeder implements ApplicationRunner {
         }
     }
 
-    private void seedExperiences() {
+    private void seedExperiences(boolean synchronize) {
         Set<String> expectedRoles = Set.of("Analista de Tráfego Pleno", "Analista de Desenvolvimento de Sistemas Júnior / Git Master", "Analista de Desenvolvimento de Sistemas Pleno");
         List<Experience> current = content.findExperiences();
+        if (!synchronize && !current.isEmpty()) return;
         boolean synchronizedData = current.size() == 3
             && current.stream().allMatch(item -> "PLANSUL – Planejamento e Consultoria".equals(item.company()) && expectedRoles.contains(item.role()))
             && current.stream().filter(item -> "Analista de Tráfego Pleno".equals(item.role())).allMatch(item -> item.startYear() == 2022 && Integer.valueOf(2023).equals(item.endYear()) && item.technologies().isEmpty())
             && current.stream().filter(item -> "Analista de Desenvolvimento de Sistemas Júnior / Git Master".equals(item.role())).allMatch(item -> item.startYear() == 2023 && Integer.valueOf(2025).equals(item.endYear()))
-            && current.stream().filter(item -> "Analista de Desenvolvimento de Sistemas Pleno".equals(item.role())).allMatch(item -> item.startYear() == 2025 && item.endYear() == null && item.technologies().containsAll(List.of("Java", "Spring Boot")));
+            && current.stream().filter(item -> "Analista de Desenvolvimento de Sistemas Pleno".equals(item.role())).allMatch(item -> item.startYear() == 2025 && item.endYear() == null
+                && item.technologies().containsAll(List.of("C#", ".NET", "PHP", "Laravel", "JavaScript", "Node.js", "React", "SQL Server", "PostgreSQL", "Python", "Kafka", "OpenAPI", "Swagger", "Git", "GitFlow", "Jenkins", "CI/CD"))
+                && !item.technologies().contains("Java") && !item.technologies().contains("Spring Boot"));
         if (synchronizedData) return;
         current.forEach(item -> content.deleteExperience(item.id()));
         content.saveExperience(new Experience(null, "PLANSUL – Planejamento e Consultoria", "Analista de Tráfego Pleno", "Mid-level Traffic Analyst",
@@ -102,16 +111,17 @@ public class DevelopmentDataSeeder implements ApplicationRunner {
             List.of("Automações", "APIs e integrações", "Dashboards", "Participação do levantamento de requisitos à implantação"),
             List.of("Automations", "APIs and integrations", "Dashboards", "Participation from requirements gathering through deployment"), 2));
         content.saveExperience(new Experience(null, "PLANSUL – Planejamento e Consultoria", "Analista de Desenvolvimento de Sistemas Pleno", "Mid-level Systems Development Analyst",
-            "Com a evolução para Pleno em 2025, passei a atuar com maior autonomia técnica no desenvolvimento de APIs e sistemas corporativos com Java 21 e Spring Boot, além de novas funcionalidades, sustentação, investigação de incidentes, integrações e evolução de soluções legadas. Também ampliei minha atuação em aplicações C# e .NET.",
-            "After progressing to a mid-level role in 2025, I began working with greater technical autonomy on APIs and corporate systems using Java 21 and Spring Boot, alongside new features, application support, incident investigation, integrations, and legacy solution evolution. I also expanded my work with C# and .NET applications.",
-            2025, null, List.of("Java", "Spring Boot", "JavaScript", "PHP", "Laravel", "Node.js", "React", "C#", ".NET", "PostgreSQL", "SQL Server", "Python", "Kafka", "OpenAPI", "Swagger", "Git", "GitFlow", "Jenkins", "CI/CD"),
-            List.of("Desenvolvimento de APIs com Java 21 e Spring Boot", "Desenvolvimento Full Stack", "Criação de APIs REST do zero", "Manutenção e evolução de APIs", "Gateways", "Integração entre sistemas", "Análise de requisitos", "Implantação", "Sustentação em produção"),
-            List.of("API development with Java 21 and Spring Boot", "Full-stack development", "Building REST APIs from scratch", "API maintenance and evolution", "Gateways", "System integration", "Requirements analysis", "Deployment", "Production support"), 3));
+            "Com a evolução para Pleno em 2025, passei a atuar com maior autonomia técnica no desenvolvimento e evolução de APIs e sistemas corporativos, novas funcionalidades, sustentação, investigação de incidentes, integrações e soluções legadas, com atuação Full Stack em aplicações C#, .NET, PHP, Laravel, Node.js e React.",
+            "After progressing to a mid-level role in 2025, I began working with greater technical autonomy on corporate APIs and systems, new features, application support, incident investigation, integrations, and legacy solutions, with full-stack work across C#, .NET, PHP, Laravel, Node.js, and React applications.",
+            2025, null, List.of("C#", ".NET", "PHP", "Laravel", "JavaScript", "Node.js", "React", "SQL Server", "PostgreSQL", "Python", "Kafka", "OpenAPI", "Swagger", "Git", "GitFlow", "Jenkins", "CI/CD"),
+            List.of("Desenvolvimento Full Stack", "Criação e manutenção de APIs REST", "Gateways e integrações entre sistemas", "Análise de requisitos", "Implantação", "Sustentação em produção", "Investigação de incidentes", "Evolução de soluções legadas"),
+            List.of("Full-stack development", "REST API creation and maintenance", "Gateways and system integrations", "Requirements analysis", "Deployment", "Production support", "Incident investigation", "Legacy solution evolution"), 3));
     }
 
-    private void seedProjects() {
+    private void seedProjects(boolean synchronize) {
         Set<String> expectedSlugs = Set.of("vidaplus", "nexo-financeiro", "caraoque");
         List<Project> current = content.findProjects();
+        if (!synchronize && !current.isEmpty()) return;
         boolean synchronizedData = current.size() == 3 && current.stream().map(Project::slug).collect(java.util.stream.Collectors.toSet()).equals(expectedSlugs);
         if (synchronizedData) return;
         current.forEach(item -> content.deleteProject(item.id()));

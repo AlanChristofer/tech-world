@@ -1,11 +1,17 @@
 spring:
+  config:
+    import: optional:classpath:kafka-${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}.yml
+  profiles:
+    default: local
   application:
-    name: developer-command-center-api
+    name: tech-world-api
   mongodb:
     uri: ${MONGODB_URI:mongodb://localhost:27017/developer_command_center}
     auto-index-creation: true
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    properties:
+      security.protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
     consumer:
       group-id: portfolio-java-engineering-lab
       auto-offset-reset: earliest
@@ -15,7 +21,8 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:${PORT:8080}}
+  forward-headers-strategy: framework
   error:
     include-stacktrace: never
 portfolio:
@@ -30,6 +37,10 @@ portfolio:
   lab:
     kafka:
       topic: ${ORDER_CREATED_TOPIC:order-created}
+    rate-limit:
+      enabled: false
+      max-requests: 5
+      window: PT1M
 management:
   endpoints:
     web:
@@ -38,10 +49,19 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,mongo,kafka
+        liveness:
+          include: livenessState
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operations-sorter: method
 logging:
+  level:
+    org.springframework.web: INFO
   pattern:
     console: '{"timestamp":"%d{yyyy-MM-dd''T''HH:mm:ss.SSSXXX}","level":"%level","logger":"%logger{36}","traceId":"%X{traceId:-}","orderId":"%X{orderId:-}","message":"%replace(%msg){''[\r\n]'','' ''}"}%n'

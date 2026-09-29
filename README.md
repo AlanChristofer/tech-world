@@ -1,8 +1,8 @@
-# Developer Command Center
+# Tech World
 
-Portfólio profissional interativo de **Alan Christofer**, construído como uma aplicação Full Stack real para demonstrar Java, Spring Boot, arquitetura, frontend moderno, segurança e entrega por containers.
+Portfólio profissional interativo de Alan Christofer, construído como uma aplicação Full Stack real para apresentar trajetória, projetos e demonstrar engenharia de software com Java, Spring Boot e tecnologias modernas.
 
-> Live Demo: configure a URL após o primeiro deploy.
+> Live Demo: deployment pending
 
 ## Architecture
 
@@ -17,33 +17,33 @@ flowchart LR
     A --> K[(Kafka)]
 ```
 
-O domínio Java não depende de Spring, MongoDB ou HTTP. Controllers chamam portas de entrada; casos de uso dependem de interfaces; adapters implementam persistência e segurança. A representação interativa fica em `/architecture`.
+O domínio Java não depende de Spring, MongoDB ou HTTP. Controllers chamam portas de entrada; casos de uso dependem de interfaces; adapters implementam persistência, mensageria e segurança. A representação interativa está disponível em `/architecture`.
 
 ## Tech Stack
 
 - Java 21, Spring Boot 4.1.1, Spring Security, JWT, Bean Validation, Spring Data MongoDB e Spring Kafka
 - OpenAPI/Swagger, Actuator, Micrometer/Prometheus, JUnit, Mockito e Testcontainers
 - Next.js 16, React 19, TypeScript, TanStack Query, Tailwind CSS, Radix UI, Three.js e React Three Fiber
-- Docker Compose, GitLab CI e Kubernetes
+- Docker Compose, GitHub Actions e GitLab CI
 
 ## How to Run
 
 ```bash
 cp .env.example .env
-# troque JWT_SECRET e ADMIN_PASSWORD
+# Troque JWT_SECRET e ADMIN_PASSWORD antes de iniciar.
 docker compose up --build
 ```
 
 - Frontend: http://localhost:3000
 - API: http://localhost:8080/api/profile
 - Swagger UI via frontend: http://localhost:3000/swagger
-- Actuator health: http://localhost:8080/actuator/health
+- Readiness: http://localhost:8080/actuator/health/readiness
 
-Para desenvolvimento sem containers, execute MongoDB e Kafka e use `./mvnw spring-boot:run`; em outro terminal, `cd frontend && npm install && npm run dev`.
+Para executar sem containers, inicie MongoDB e Kafka, rode `./mvnw spring-boot:run` e, em outro terminal, `cd frontend && npm install && npm run dev`.
 
 ## Java Engineering Lab
 
-O destino **Java Engineering Lab** transforma o portfólio em uma demonstração executável de backend. `POST /api/lab/orders` recebe um pedido demonstrativo, aplica Bean Validation, executa o caso de uso sem dependências de infraestrutura, persiste no MongoDB, publica `OrderCreatedEvent` no tópico `order-created` e conclui o processamento em um consumer Kafka.
+O **Java Engineering Lab** é uma demonstração técnica do próprio Tech World. `POST /api/lab/orders` valida e persiste um pedido no MongoDB, publica `OrderCreatedEvent` no Kafka e conclui o processamento de forma assíncrona.
 
 ```mermaid
 flowchart LR
@@ -59,31 +59,50 @@ flowchart LR
 ```
 
 - Trace real por `traceId`, propagado no header `X-Trace-Id`, logs e evento Kafka.
-- Etapas e durações persistidas pelo backend, consultáveis em `GET /api/lab/orders/{id}/trace`.
-- Health real de Spring Boot, MongoDB e Kafka em `GET /api/lab/system-health`.
-- Métricas Micrometer `portfolio.lab.orders.*`, disponíveis também no Prometheus.
-- Pedidos e traces expiram automaticamente após 24 horas por índices TTL.
-- A publicação aguarda acknowledgement do Kafka; uma falha marca o pedido como `FAILED` e retorna `503`. Uma evolução futura recomendada é o Outbox Pattern para atomicidade entre MongoDB e Kafka.
+- Etapas consultáveis em `GET /api/lab/orders/{id}/trace`.
+- Health de Spring Boot, MongoDB e Kafka em `GET /api/lab/system-health`.
+- Métricas `portfolio.lab.orders.*` disponíveis no Actuator Prometheus protegido.
+- Pedidos e traces expiram após 24 horas por índices TTL do MongoDB.
+- O POST público possui rate limit leve por IP; excesso retorna HTTP 429.
 
-Para executar o laboratório completo, use `docker compose up --build`. MongoDB e Kafka são iniciados com health checks antes do backend. Os manifests Kubernetes atuais não incluem Kafka; para um cluster real, deve-se usar um broker gerenciado ou adicionar um operador Kafka conforme o ambiente, sem simular infraestrutura.
+Java 21 e Spring Boot representam a evolução técnica demonstrada pelo Tech World e pelo Java Engineering Lab. Não são apresentados como experiência profissional na Plansul.
+
+## Production Architecture
+
+```text
+Next.js
+   ↓
+Spring Boot
+├── MongoDB
+└── Kafka
+```
+
+- Frontend: Vercel ou outro runtime compatível com Next.js.
+- Backend: serviço de container/cloud com Java 21.
+- Persistência: MongoDB Atlas ou MongoDB compatível.
+- Mensageria: serviço Kafka gerenciado compatível com SASL/SSL.
+
+O profile de produção é ativado com `SPRING_PROFILES_ACTIVE=prod`. O desenvolvimento local permanece no profile `local` e continua disponível por Docker Compose. Variáveis, ordem de provisionamento e smoke test estão documentados em [docs/deployment.md](docs/deployment.md).
 
 ## Tests
 
 ```bash
 ./mvnw test
-cd frontend && npm test && npm run build
+cd frontend
+npm test
+npm run build
 ```
 
-Os testes de integração usam MongoDB e Kafka Testcontainers e são ignorados automaticamente quando Docker não está disponível.
+Os testes de integração utilizam MongoDB e Kafka com Testcontainers quando Docker está disponível.
 
-## Docker, CI/CD and Kubernetes
+## CI
 
-`docker-compose.yml` sobe MongoDB, Kafka, backend e frontend com health checks. `.gitlab-ci.yml` bloqueia a entrega em falhas de teste/build e valida as duas imagens. Para Kubernetes, crie `portfolio-secrets` a partir de `k8s/secret.example.yaml`, ajuste imagens/URLs e aplique `k8s/`.
-
-Kafka faz parte do runtime exclusivamente para o fluxo real de pedidos do Engineering Lab. PostgreSQL permanece fora deste runtime porque ainda não existe um caso relacional que justifique sua inclusão. O projeto está pronto para imagens em ECR e execução futura em ECS/EKS, sem criar recursos pagos ou acoplar o domínio à AWS.
+- `.github/workflows/ci.yml`: executa testes do backend e tipagem/build do frontend em pushes e pull requests.
+- `.gitlab-ci.yml`: mantém testes, builds e validação das imagens Docker.
+- Nenhum pipeline realiza deploy automático.
 
 ## Configuration
 
-Perfil, links, experiências e projetos podem ser atualizados pelos endpoints `/api/admin/**` com token obtido em `POST /api/auth/login`. Nenhum segredo deve ser enviado ao frontend ou versionado.
+Perfil, links, experiências e projetos podem ser atualizados pelos endpoints `/api/admin/**` com JWT de administrador. Em produção, o seeder realiza somente bootstrap de coleções vazias e nunca substitui conteúdo já administrado.
 
-As texturas do globo estão em `frontend/public/textures/earth/` e os destinos são definidos em `frontend/src/features/globe/destinations.ts`.
+Nenhum segredo deve ser enviado ao frontend ou versionado. Use `.env.example` apenas como referência local e configure secrets diretamente no provedor cloud.

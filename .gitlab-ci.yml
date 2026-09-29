@@ -31,5 +31,5 @@ docker-build:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
   script:
-    - docker build -f backend/Dockerfile -t developer-command-center-api:$CI_COMMIT_SHA .
-    - docker build -f frontend/Dockerfile -t developer-command-center-web:$CI_COMMIT_SHA .
+    - docker build -f backend/Dockerfile -t tech-world-api:$CI_COMMIT_SHA .
+    - docker build -f frontend/Dockerfile -t tech-world-web:$CI_COMMIT_SHA .

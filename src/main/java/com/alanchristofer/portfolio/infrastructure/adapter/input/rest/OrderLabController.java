@@ -56,7 +56,7 @@ public class OrderLabController {
 
     @PostMapping("/orders")
     @Operation(summary = "Executar fluxo de pedido", description = "Valida, persiste no MongoDB, publica OrderCreatedEvent no Kafka e retorna o trace ID real.")
-    @ApiResponses({ @ApiResponse(responseCode = "201", description = "Pedido persistido e evento confirmado pelo Kafka"), @ApiResponse(responseCode = "400", description = "Falha de Bean Validation"), @ApiResponse(responseCode = "503", description = "Persistência ou mensageria indisponível") })
+    @ApiResponses({ @ApiResponse(responseCode = "201", description = "Pedido persistido e evento confirmado pelo Kafka"), @ApiResponse(responseCode = "400", description = "Falha de Bean Validation"), @ApiResponse(responseCode = "429", description = "Limite de execuções por IP excedido"), @ApiResponse(responseCode = "503", description = "Persistência ou mensageria indisponível") })
     public ResponseEntity<OrderResponse> create(@Valid @RequestBody CreateOrderRequest body, HttpServletRequest request) {
         String traceId = (String) request.getAttribute(LabTraceFilter.TRACE_ID_ATTRIBUTE);
         traces.append(traceId, new TraceStep("VALIDATION_COMPLETED", clock.instant(), null, "SUCCESS", "Bean Validation completed"));

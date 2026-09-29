@@ -1,7 +1,7 @@
 import { fallbackData } from "./fallback";
 import type { Architecture, Experience, LabResult, PortfolioData, Profile, Project, Skill } from "@/types/portfolio";
 
-const serverApiUrl = process.env.API_URL ?? "http://localhost:8080";
+const serverApiUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 async function get<T>(path: string, baseUrl = serverApiUrl): Promise<T> {
   const response = await fetch(`${baseUrl}${path}`, { next: { revalidate: 60 }, headers: { Accept: "application/json" } });

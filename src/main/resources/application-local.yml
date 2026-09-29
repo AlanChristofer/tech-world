@@ -1,0 +1,11 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+  kafka:
+    admin:
+      auto-create: true
+
+portfolio:
+  seed:
+    mode: synchronize
