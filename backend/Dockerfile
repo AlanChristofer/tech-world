@@ -7,7 +7,12 @@ COPY src src
 RUN mvn -B -DskipTests package
 
 FROM eclipse-temurin:21-jre-alpine
-RUN apk add --no-cache curl && addgroup -S spring && adduser -S spring -G spring
+RUN apk add --no-cache curl \
+    && addgroup -S spring \
+    && adduser -S spring -G spring \
+    && secrets_group="$(awk -F: '$3 == 1000 { print $1; exit }' /etc/group)" \
+    && if [ -z "$secrets_group" ]; then addgroup -S -g 1000 render-secrets; secrets_group=render-secrets; fi \
+    && addgroup spring "$secrets_group"
 USER spring:spring
 WORKDIR /app
 COPY --from=build /workspace/target/*.jar app.jar

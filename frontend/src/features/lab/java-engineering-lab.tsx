@@ -25,7 +25,7 @@ import {
   TriangleAlert,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FaGithub } from "react-icons/fa";
 import { SkillIcon } from "@/components/skill-icon";
 import { useTheme } from "@/components/theme-context";
@@ -53,6 +53,7 @@ type HealthResponse = {
 type ApiError = { timestamp: string; status: number; error: string; message: string; path: string; validationErrors: Record<string, string> };
 type InspectorTab = "overview" | "code" | "test" | "logs";
 type StepState = "success" | "failed" | "running" | "waiting";
+type StepTone = "input" | "validation" | "application" | "persistence" | "domain" | "messaging" | "completion";
 
 type StepDefinition = {
   id: TraceStepName;
@@ -255,6 +256,17 @@ const architectureOutputs = [
 ] as const;
 
 const techChips = ["Java", "Spring Boot", "Clean Architecture", "MongoDB", "Kafka", "JUnit", "Observabilidade"];
+const stepTones: Record<TraceStepName, StepTone> = {
+  REQUEST_RECEIVED: "input",
+  VALIDATION_COMPLETED: "validation",
+  USE_CASE_STARTED: "application",
+  ORDER_PERSISTED: "persistence",
+  ORDER_CREATED_EVENT: "domain",
+  EVENT_PUBLISHED: "messaging",
+  EVENT_CONSUMED: "messaging",
+  ORDER_PROCESSED: "completion",
+};
+const STEP_REVEAL_INTERVAL_MS = 430;
 
 function formatTime(value: string, withDate = false) {
   const date = new Date(value);
@@ -296,20 +308,25 @@ export function JavaEngineeringLab() {
   const [running, setRunning] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [visibleStepCount, setVisibleStepCount] = useState(0);
+  const presentationId = useRef(0);
+  const visibleStepCountRef = useRef(0);
 
   const selectedMeta = steps.find((step) => step.id === selected) ?? steps[0];
-  const actualSteps = useMemo(() => new Map(trace?.steps.map((step) => [step.name, step]) ?? []), [trace]);
+  const visibleSteps = useMemo(() => trace?.steps.slice(0, visibleStepCount) ?? [], [trace, visibleStepCount]);
+  const actualSteps = useMemo(() => new Map(visibleSteps.map((step) => [step.name, step])), [visibleSteps]);
   const selectedActual = actualSteps.get(selected);
   const completed = actualSteps.has("ORDER_PROCESSED");
+  const traceFailed = visibleSteps.some((step) => step.status === "FAILED");
   const traceId = trace?.traceId ?? order?.traceId ?? failureTraceId;
   const totalLatency = useMemo(() => {
-    if (!trace?.steps.length) return null;
-    const first = new Date(trace.steps[0].timestamp).getTime();
-    const lastStep = trace.steps.at(-1)!;
+    if (!visibleSteps.length) return null;
+    const first = new Date(visibleSteps[0].timestamp).getTime();
+    const lastStep = visibleSteps.at(-1)!;
     const last = new Date(lastStep.timestamp).getTime();
     if (Number.isFinite(first) && Number.isFinite(last)) return Math.max(0, last - first) + (lastStep.durationMs ?? 0);
-    return trace.steps.reduce((total, step) => total + (step.durationMs ?? 0), 0);
-  }, [trace]);
+    return visibleSteps.reduce((total, step) => total + (step.durationMs ?? 0), 0);
+  }, [visibleSteps]);
 
   async function loadHealth() {
     try {
@@ -322,18 +339,39 @@ export function JavaEngineeringLab() {
 
   useEffect(() => {
     void loadHealth();
+    return () => { presentationId.current += 1; };
   }, []);
 
-  async function pollTrace(orderId: string) {
+  async function revealTrace(nextTrace: TraceResponse, currentPresentationId: number) {
+    if (currentPresentationId !== presentationId.current) return false;
+    setTrace(nextTrace);
+    const revealDelay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : STEP_REVEAL_INTERVAL_MS;
+
+    while (visibleStepCountRef.current < nextTrace.steps.length) {
+      if (visibleStepCountRef.current > 0 && revealDelay > 0) {
+        await new Promise((resolve) => window.setTimeout(resolve, revealDelay));
+      }
+      if (currentPresentationId !== presentationId.current) return false;
+
+      const nextCount = visibleStepCountRef.current + 1;
+      visibleStepCountRef.current = nextCount;
+      setVisibleStepCount(nextCount);
+      setSelected(nextTrace.steps[nextCount - 1].name);
+    }
+    return true;
+  }
+
+  async function pollTrace(orderId: string, currentPresentationId: number) {
     for (let attempt = 0; attempt < 40; attempt += 1) {
+      if (currentPresentationId !== presentationId.current) return;
       const [traceResponse, orderResponse] = await Promise.all([
         fetch(`/api/lab/orders/${orderId}/trace`, { cache: "no-store" }),
         fetch(`/api/lab/orders/${orderId}`, { cache: "no-store" }),
       ]);
-      if (orderResponse.ok) setOrder(await orderResponse.json() as OrderResponse);
+      if (orderResponse.ok && currentPresentationId === presentationId.current) setOrder(await orderResponse.json() as OrderResponse);
       if (traceResponse.ok) {
         const body = await traceResponse.json() as TraceResponse;
-        setTrace(body);
+        if (!await revealTrace(body, currentPresentationId)) return;
         if (body.steps.some((step) => step.name === "ORDER_PROCESSED" || step.status === "FAILED")) return;
       }
       await new Promise((resolve) => window.setTimeout(resolve, 500));
@@ -341,11 +379,15 @@ export function JavaEngineeringLab() {
   }
 
   function resetExecution() {
+    presentationId.current += 1;
+    visibleStepCountRef.current = 0;
+    setVisibleStepCount(0);
     setOrder(null); setTrace(null); setFailure(null); setFailureTraceId(null); setHttpStatus(null); setError(null);
   }
 
   async function execute() {
-    setRunning(true); resetExecution();
+    setRunning(true); resetExecution(); setSelected("REQUEST_RECEIVED");
+    const currentPresentationId = presentationId.current;
     try {
       const response = await fetch("/api/lab/orders", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -355,8 +397,8 @@ export function JavaEngineeringLab() {
       const body = await response.json();
       if (!response.ok) throw new Error(body.message ?? `HTTP ${response.status}`);
       const created = body as OrderResponse;
-      setOrder(created); setSelected("REQUEST_RECEIVED");
-      await pollTrace(created.id); await loadHealth();
+      setOrder(created);
+      await pollTrace(created.id, currentPresentationId); await loadHealth();
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Engineering Lab request failed"); }
     finally { setRunning(false); }
   }
@@ -389,11 +431,11 @@ export function JavaEngineeringLab() {
     const actual = actualSteps.get(id);
     if (actual?.status === "FAILED") return "failed";
     if (actual) return "success";
-    if (trace?.steps.some((step) => step.status === "FAILED")) return "waiting";
+    if (visibleSteps.some((step) => step.status === "FAILED")) return "waiting";
     return running && steps.slice(0, index).every((step) => actualSteps.has(step.id)) ? "running" : "waiting";
   }
 
-  const executionLabel = running ? (pt ? "EXECUTANDO FLUXO" : "RUNNING FLOW") : failure ? (pt ? "VALIDAÇÃO INTERROMPEU O FLUXO" : "VALIDATION STOPPED THE FLOW") : completed ? (pt ? "CONCLUÍDO COM SUCESSO" : "COMPLETED SUCCESSFULLY") : (pt ? "PRONTO PARA EXECUTAR" : "READY TO RUN");
+  const executionLabel = running ? (pt ? "EXECUTANDO FLUXO" : "RUNNING FLOW") : failure || traceFailed ? (pt ? "FLUXO INTERROMPIDO" : "FLOW STOPPED") : completed ? (pt ? "CONCLUÍDO COM SUCESSO" : "COMPLETED SUCCESSFULLY") : (pt ? "PRONTO PARA EXECUTAR" : "READY TO RUN");
   const domainPayload = order ?? failure;
 
   return <div className={`${styles.page} ${theme === "light" ? styles.light : ""}`}>
@@ -405,6 +447,7 @@ export function JavaEngineeringLab() {
           <span className={styles.eyebrow}>Java Engineering Lab</span>
           <h1>{pt ? "Backend em execução" : "Backend in action"}</h1>
           <p>{pt ? "Execute um fluxo real construído com Java e Spring Boot e acompanhe cada etapa da requisição até o processamento assíncrono." : "Run a real Java and Spring Boot flow and follow each stage from the request to asynchronous processing."}</p>
+          <div className={styles.flowProof}><span><Radio />{pt ? "Pipeline real" : "Real pipeline"}</span><strong>Spring Boot API <i>→</i> MongoDB <i>→</i> Kafka <i>→</i> Consumer</strong></div>
           <div className={styles.techChips}>{techChips.map((item) => <span key={item}><SkillIcon name={item} size={14} />{item}</span>)}</div>
         </div>
         <div className={styles.heroActions}>
@@ -416,21 +459,22 @@ export function JavaEngineeringLab() {
 
       <section className={styles.execution}>
         <header className={styles.executionHeader}>
-          <div className={styles.executionState}><Radio /><strong>{pt ? "Execução do pedido" : "Order execution"}</strong><span className={failure ? styles.failureBadge : completed ? styles.successBadge : styles.readyBadge}>{executionLabel}</span></div>
+          <div className={styles.executionState} aria-live="polite"><Radio /><strong>{pt ? "Execução do pedido" : "Order execution"}</strong><span className={failure || traceFailed ? styles.failureBadge : completed ? styles.successBadge : styles.readyBadge}>{executionLabel}</span></div>
           <div className={styles.traceMeta}>{traceId && <button type="button" onClick={() => copyText(traceId, "trace")}><span>TRACE #{traceId}</span>{copied === "trace" ? <Check /> : <Copy />}</button>}{order?.createdAt && <time>{pt ? "Executado em" : "Executed at"} {formatTime(order.createdAt, true)}</time>}{totalLatency != null && <strong>Total: {totalLatency} ms</strong>}{httpStatus != null && <b>HTTP {httpStatus}</b>}</div>
         </header>
         {error && <div className={styles.errorBanner}><X /><strong>FAILED</strong><span>{error}</span></div>}
         <div className={styles.steps}>{steps.map((step, index) => {
           const state = visualState(step.id, index);
           const actual = actualSteps.get(step.id);
-          return <button type="button" key={step.id} data-state={state} className={selected === step.id ? styles.activeStep : ""} onClick={() => setSelected(step.id)}>
+          return <button type="button" key={step.id} data-state={state} data-tone={stepTones[step.id]} aria-current={state === "running" ? "step" : undefined} className={selected === step.id ? styles.activeStep : ""} onClick={() => setSelected(step.id)}>
+            <span className={styles.stepIndex}>{String(index + 1).padStart(2, "0")}</span>
             <span className={styles.stepStatus}>{state === "success" ? <Check /> : state === "failed" ? <X /> : state === "running" ? <LoaderCircle className={styles.spin} /> : <CircleDot />}</span>
-            <strong>{pt ? step.pt : step.en}</strong><small>{actual?.detail ?? step.short}</small>{actual?.durationMs != null && <time>{actual.durationMs} ms</time>}{index < steps.length - 1 && <ArrowRight className={styles.stepArrow} />}
+            <span className={styles.stepLayer}>{step.short}</span><strong>{pt ? step.pt : step.en}</strong><small>{actual?.detail ?? step.layer}</small>{actual?.durationMs != null && <time>{actual.durationMs} ms</time>}{index < steps.length - 1 && <ArrowRight className={styles.stepArrow} />}
           </button>;
         })}</div>
 
         <div className={styles.workbench}>
-          <section className={styles.inspector}>
+          <section className={styles.inspector} data-tone={stepTones[selected]}>
             <header><span><Database />{pt ? "Etapa selecionada" : "Selected stage"}</span><strong>{String(steps.findIndex((step) => step.id === selected) + 1).padStart(2, "0")} / 08</strong></header>
             <div className={styles.inspectorTitle}><Database /><div><span>{selectedMeta.layer}</span><h2>{pt ? selectedMeta.pt : selectedMeta.en}</h2></div>{selectedActual?.durationMs != null && <b><Check />{selectedActual.durationMs} ms</b>}</div>
             <p>{pt ? selectedMeta.responsibility : selectedMeta.responsibilityEn}</p>
@@ -462,9 +506,9 @@ export function JavaEngineeringLab() {
             </article>
             <article className={styles.architecturePanel}>
               <header><Activity />{pt ? "Arquitetura do fluxo" : "Flow architecture"}</header>
-              <div className={styles.architecturePrimary}>{architecture.map((node) => { const Icon = node.icon; return <button key={node.label} type="button" onClick={() => setSelected(node.step)}><Icon /><span><strong>{node.label}</strong><small>{node.detail}</small></span></button>; })}</div>
+              <div className={styles.architecturePrimary}>{architecture.map((node) => { const Icon = node.icon; return <button key={node.label} type="button" data-tone={stepTones[node.step]} onClick={() => setSelected(node.step)}><Icon /><span><strong>{node.label}</strong><small>{node.detail}</small></span></button>; })}</div>
               <div className={styles.portBridge}><span>OrderRepositoryPort</span><span>EventPublisherPort</span></div>
-              <div className={styles.architectureOutputs}>{architectureOutputs.map((node) => { const Icon = node.icon; return <button key={node.label} type="button" onClick={() => setSelected(node.step)}><Icon /><span><strong>{node.label}</strong><small>{node.detail}</small></span></button>; })}</div>
+              <div className={styles.architectureOutputs}>{architectureOutputs.map((node) => { const Icon = node.icon; return <button key={node.label} type="button" data-tone={stepTones[node.step]} onClick={() => setSelected(node.step)}><Icon /><span><strong>{node.label}</strong><small>{node.detail}</small></span></button>; })}</div>
             </article>
           </aside>
         </div>
@@ -480,7 +524,7 @@ export function JavaEngineeringLab() {
           </section>
           <section className={styles.fullTrace}>
             <header><GitBranch />{pt ? "Trace completo" : "Full trace"}</header>
-            <div>{trace?.steps.length ? trace.steps.map((step) => <button type="button" key={`${step.name}-${step.timestamp}`} onClick={() => setSelected(step.name)}><time>{formatTime(step.timestamp)}</time><span>{step.name}</span><b>{step.durationMs == null ? "—" : `${step.durationMs} ms`}</b><Check /></button>) : failure ? <div className={styles.failureTrace}><time>{formatTime(failure.timestamp)}</time><span>VALIDATION_FAILED</span><b>HTTP {failure.status}</b><X /></div> : <p>{pt ? "Execute um fluxo para visualizar o trace real." : "Run a flow to see the real trace."}</p>}</div>
+            <div>{visibleSteps.length ? visibleSteps.map((step) => <button type="button" key={`${step.name}-${step.timestamp}`} onClick={() => setSelected(step.name)}><time>{formatTime(step.timestamp)}</time><span>{step.name}</span><b>{step.durationMs == null ? "—" : `${step.durationMs} ms`}</b><Check /></button>) : failure ? <div className={styles.failureTrace}><time>{formatTime(failure.timestamp)}</time><span>VALIDATION_FAILED</span><b>HTTP {failure.status}</b><X /></div> : <p>{pt ? "Execute um fluxo para visualizar o trace real." : "Run a flow to see the real trace."}</p>}</div>
           </section>
         </div>
       </section>

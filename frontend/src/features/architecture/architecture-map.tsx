@@ -8,6 +8,8 @@ import { SkillIcon } from "@/components/skill-icon";
 import { useI18n } from "@/i18n/language-context";
 import type { Architecture } from "@/types/portfolio";
 
+const architectureTones = ["interface", "contract", "application", "core", "domain", "boundary", "infrastructure"] as const;
+
 const nodes = [
   {
     id: "frontend",
@@ -109,14 +111,14 @@ export function ArchitectureMap({ architecture }: { architecture: Architecture }
       </div>
       <div className="architecture-lab-grid">
         <div className="architecture-node-list" role="tablist" aria-label="Componentes da arquitetura">
-          {flow.map(({ id, title, subtitle, icon: Icon, index }) => <button key={id} type="button" role="tab" aria-selected={active === index} className={active === index ? "active" : ""} onClick={() => setActive(index)}>
+          {flow.map(({ id, title, subtitle, icon: Icon, index }) => <button key={id} type="button" role="tab" data-tone={architectureTones[index]} aria-selected={active === index} className={active === index ? "active" : ""} onClick={() => setActive(index)}>
             <span className="architecture-step-index"><strong>{String(index + 1).padStart(2, "0")}</strong><small>{String(index + 1).padStart(2, "0")}</small></span>
             <Icon className="architecture-step-icon" size={34} />
             <span className="architecture-step-copy"><strong>{title}</strong><small>{subtitle}</small></span>
             <ArrowRight className="architecture-step-arrow" size={22} />
           </button>)}
         </div>
-        <aside className="architecture-component-panel" role="tabpanel">
+        <aside className="architecture-component-panel" data-tone={architectureTones[active]} role="tabpanel">
           <header>
             <span><strong>{String(active + 1).padStart(2, "0")}</strong> / {selected.layer}</span>
             <a href="https://github.com/AlanChristofer/tech-world" target="_blank" rel="noopener noreferrer"><Github size={20} />{githubLabel}<ExternalLink size={15} /></a>

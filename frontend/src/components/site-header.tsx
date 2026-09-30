@@ -14,7 +14,10 @@ export function SiteHeader() {
   const copy = worldCopy[language];
   const [mobileOpen, setMobileOpen] = useState(false);
   return <header className="site-header">
-    <Link href="/" className="brand" aria-label="Alan Christofer — Software Developer"><span className="brand-mark">AC</span><span><strong>Alan Christofer</strong><small>Software Developer</small></span></Link>
+    <Link href="/" className="brand" aria-label="Tech World — portfólio de Alan Christofer">
+      <img className="brand-mark" src="/branding/tech-world-mark.svg" width="40" height="40" alt="" aria-hidden="true" />
+      <span className="brand-copy"><strong>Tech World</strong><small>Alan Christofer</small></span>
+    </Link>
     <div className="header-actions">
       <button className="theme-switch" type="button" onClick={toggleTheme} aria-label={theme === "dark" ? (language === "pt-BR" ? "Ativar modo claro" : "Enable light mode") : (language === "pt-BR" ? "Ativar modo escuro" : "Enable dark mode")} title={theme === "dark" ? (language === "pt-BR" ? "Modo claro" : "Light mode") : (language === "pt-BR" ? "Modo escuro" : "Dark mode")}>{theme === "dark" ? <Sun /> : <Moon />}</button>
       <div className="language-switch" role="group" aria-label={language === "pt-BR" ? "Idioma" : "Language"}><button className={language === "pt-BR" ? "active" : ""} onClick={() => setLanguage("pt-BR")} aria-pressed={language === "pt-BR"}>PT</button><span>|</span><button className={language === "en-US" ? "active" : ""} onClick={() => setLanguage("en-US")} aria-pressed={language === "en-US"}>EN</button></div>

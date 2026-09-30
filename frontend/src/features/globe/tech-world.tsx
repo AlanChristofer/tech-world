@@ -4,9 +4,10 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight, ArrowUpRight, BookOpen, Box, BriefcaseBusiness, CheckCircle2, Church, Code2, Compass, Copy, Database, Folder, Gamepad2, GraduationCap, Heart, Layers3, Leaf, ListChecks, Minus, Music2, Plane, Plug, Radio, Route, Sparkles, Square, Target, TrendingUp, Users, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BookOpen, Box, BriefcaseBusiness, CheckCircle2, Church, CloudCog, Code2, Compass, Copy, Database, Folder, Gamepad2, GraduationCap, Heart, Layers3, Leaf, ListChecks, Minus, Music2, Plane, Plug, Radio, Route, Sparkles, Square, Target, TrendingUp, Users, X } from "lucide-react";
 import { FaGithub as Github, FaLinkedin as Linkedin } from "react-icons/fa";
 import { SkillIcon } from "@/components/skill-icon";
+import { ProductionArchitecture } from "@/features/production/production-architecture";
 import { useI18n } from "@/i18n/language-context";
 import { worldCopy } from "@/i18n/world-messages";
 import type { Experience, PortfolioData, Project } from "@/types/portfolio";
@@ -250,10 +251,21 @@ function ArchitecturePanel() {
   </div>;
 }
 
+const architectureLayerTones = ["interface", "contract", "application", "core", "domain", "boundary", "infrastructure"] as const;
+
 function ArchitectureGlobePanel() {
   const { language } = useI18n();
   const copy = worldCopy[language];
+  const params = useSearchParams();
+  const [view, setView] = useState<"system" | "production">(params.get("architecture") === "production" ? "production" : "system");
   const [active, setActive] = useState(0);
+  const switchView = (next: "system" | "production") => {
+    setView(next);
+    requestAnimationFrame(() => {
+      const panel = document.querySelector<HTMLElement>(".destination-experience.panel-architecture");
+      panel?.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  };
   const nodes = language === "pt-BR" ? [
     { layer: "Frontend", title: "Next.js", subtitle: "Interface e experiência web", description: "Entrega a interface, a navegação e a renderização da experiência do portfólio.", note: "Mantém a apresentação separada das regras do sistema.", icon: Folder, tech: ["Next.js", "TypeScript", "React"] },
     { layer: "API", title: "REST API", subtitle: "Comunicação e contratos", description: "Expõe recursos e conecta o frontend à aplicação por contratos HTTP previsíveis.", note: "Preserva uma fronteira clara entre cliente e servidor.", icon: Code2, tech: ["REST API", "OpenAPI", "Swagger"] },
@@ -275,13 +287,26 @@ function ArchitectureGlobePanel() {
   const SelectedIcon = selected.icon;
 
   return <div className="destination-content architecture-globe-panel">
-    <PanelHeading kicker={copy.architecture.kicker} title={copy.architecture.title} intro={copy.architecture.intro} />
-    <div className="architecture-panel-status"><span><Radio size={13} />{language === "pt-BR" ? "Sistema em operação" : "System online"}</span><strong>07 {language === "pt-BR" ? "camadas mapeadas" : "mapped layers"}</strong></div>
-    <div className="architecture-panel-map">
+    <div className="architecture-view-switch" role="tablist" aria-label={language === "pt-BR" ? "Visualização da arquitetura" : "Architecture view"}>
+      <button type="button" role="tab" data-view="system" aria-selected={view === "system"} className={view === "system" ? "active" : ""} onClick={() => switchView("system")}>
+        <span className="architecture-switch-icon"><Layers3 /></span>
+        <span className="architecture-switch-copy"><strong>{language === "pt-BR" ? "Sistema" : "System"}</strong><small>{language === "pt-BR" ? "Camadas e responsabilidades" : "Layers and responsibilities"}</small></span>
+        <span className="architecture-switch-index">01</span>
+      </button>
+      <button type="button" role="tab" data-view="production" aria-selected={view === "production"} className={view === "production" ? "active" : ""} onClick={() => switchView("production")}>
+        <span className="architecture-switch-icon"><CloudCog /></span>
+        <span className="architecture-switch-copy"><strong>{language === "pt-BR" ? "Produção" : "Production"}</strong><small>{language === "pt-BR" ? "Cloud, serviços e operação" : "Cloud, services, and operations"}</small></span>
+        <span className="architecture-switch-index">02</span>
+      </button>
+    </div>
+    {view === "production" ? <ProductionArchitecture embedded /> : <>
+      <PanelHeading kicker={copy.architecture.kicker} title={copy.architecture.title} intro={copy.architecture.intro} />
+      <div className="architecture-panel-status"><span><Radio size={13} />{language === "pt-BR" ? "Sistema em operação" : "System online"}</span><strong>07 {language === "pt-BR" ? "camadas mapeadas" : "mapped layers"}</strong></div>
+      <div className="architecture-panel-map">
       <div className="architecture-panel-nodes" role="tablist" aria-label={language === "pt-BR" ? "Componentes da arquitetura" : "Architecture components"}>
         {nodes.map((node, index) => {
           const Icon = node.icon;
-          return <button key={node.title} type="button" role="tab" aria-selected={active === index} className={active === index ? "active" : ""} onClick={() => setActive(index)}>
+          return <button key={node.title} type="button" role="tab" data-tone={architectureLayerTones[index]} aria-selected={active === index} className={active === index ? "active" : ""} onClick={() => setActive(index)}>
             <span className="architecture-panel-index">{String(index + 1).padStart(2, "0")}</span>
             <Icon size={22} />
             <span className="architecture-panel-node-copy"><small>{node.layer}</small><strong>{node.title}</strong><em>{node.subtitle}</em></span>
@@ -289,7 +314,7 @@ function ArchitectureGlobePanel() {
           </button>;
         })}
       </div>
-      <aside className="architecture-panel-detail" role="tabpanel" key={selected.title}>
+      <aside className="architecture-panel-detail" data-tone={architectureLayerTones[active]} role="tabpanel" key={selected.title}>
         <header><span>{String(active + 1).padStart(2, "0")} / {selected.layer}</span><SelectedIcon size={28} /></header>
         <h3>{selected.title}</h3>
         <strong>{selected.subtitle}</strong>
@@ -297,8 +322,9 @@ function ArchitectureGlobePanel() {
         <blockquote>{selected.note}</blockquote>
         <section><span>{language === "pt-BR" ? "Tecnologias da camada" : "Layer technologies"}</span><div>{selected.tech.map((item) => <small key={item}><SkillIcon name={item} size={17} />{item}</small>)}</div></section>
       </aside>
-    </div>
-    <div className="architecture-panel-actions"><nav><a className="primary-action" href="/swagger" target="_blank" rel="noopener noreferrer">{copy.architecture.swagger}</a><Link className="secondary-action" href="/architecture">{language === "pt-BR" ? "Explorar arquitetura" : "Explore architecture"}</Link></nav></div>
+      </div>
+      <div className="architecture-panel-actions"><nav><a className="primary-action" href="/swagger" target="_blank" rel="noopener noreferrer">{copy.architecture.swagger}</a><Link className="secondary-action" href="/architecture">{language === "pt-BR" ? "Explorar arquitetura" : "Explore architecture"}</Link></nav></div>
+    </>}
   </div>;
 }
 

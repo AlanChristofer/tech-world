@@ -12,7 +12,10 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +29,7 @@ public class DevelopmentDataSeeder implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(DevelopmentDataSeeder.class);
     private static final String GITHUB_URL = "https://github.com/AlanChristofer/AlanChristofer";
     private static final String LINKEDIN_URL = "https://www.linkedin.com/in/alan-christofer-700612227";
+    private static final Pattern MARKDOWN_URL = Pattern.compile("^\\[(https?://[^\\s\\]]+)]\\((https?://[^\\s)]+)\\)$");
     private final PortfolioContentPort content;
     private final UserAccountPort users;
     private final PasswordHashPort passwords;
@@ -57,11 +61,26 @@ public class DevelopmentDataSeeder implements ApplicationRunner {
 
     private void seedProfile(boolean synchronize) {
         Profile current = content.findProfile().orElse(null);
+        if (current != null) {
+            String githubUrl = normalizeMarkdownUrl(current.githubUrl());
+            String linkedinUrl = normalizeMarkdownUrl(current.linkedinUrl());
+            if (!Objects.equals(githubUrl, current.githubUrl()) || !Objects.equals(linkedinUrl, current.linkedinUrl())) {
+                current = content.saveProfile(new Profile(current.id(), current.name(), current.role(), current.headline(),
+                    current.bio(), current.location(), githubUrl, linkedinUrl, current.resumeUrl()));
+            }
+        }
         if (!synchronize && current != null) return;
         content.saveProfile(new Profile(current == null ? "profile" : current.id(), "Alan Christofer", "Software Developer",
             "Backend • Full Stack • APIs • Arquitetura",
             "Desenvolvedor de software com experiência na criação e evolução de sistemas corporativos, APIs, integrações, automações e aplicações Full Stack.",
             current == null ? "" : current.location(), GITHUB_URL, LINKEDIN_URL, current == null ? "" : current.resumeUrl()));
+    }
+
+    static String normalizeMarkdownUrl(String value) {
+        if (value == null) return null;
+        Matcher matcher = MARKDOWN_URL.matcher(value);
+        if (!matcher.matches()) return value;
+        return matcher.group(1).equals(matcher.group(2)) ? matcher.group(1) : value;
     }
 
     private void seedSkills(boolean synchronize) {

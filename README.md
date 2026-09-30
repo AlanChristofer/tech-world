@@ -1,108 +1,144 @@
 # Tech World
 
-Portfólio profissional interativo de Alan Christofer, construído como uma aplicação Full Stack real para apresentar trajetória, projetos e demonstrar engenharia de software com Java, Spring Boot e tecnologias modernas.
+**Interactive Developer Portfolio & Java Engineering Lab**
 
-> Live Demo: deployment pending
+Tech World é o portfólio Full Stack de Alan Christofer. A aplicação reúne trajetória profissional, projetos, habilidades e arquitetura em uma experiência interativa, enquanto o Java Engineering Lab demonstra, de forma prática, APIs REST, persistência, mensageria, observabilidade, CI e deploy cloud.
 
-## Architecture
+Não é apenas uma página estática: frontend, backend, banco de dados, Kafka e automações de produção formam um sistema real e implantado.
+
+## Acesso
+
+| Recurso | Link |
+|---|---|
+| Aplicação | [tech-world-opal.vercel.app](https://tech-world-opal.vercel.app) |
+| API | [tech-world-api-kr5w.onrender.com](https://tech-world-api-kr5w.onrender.com) |
+| Health | [GET /api/health](https://tech-world-api-kr5w.onrender.com/api/health) |
+| Swagger | [OpenAPI / Swagger UI](https://tech-world-api-kr5w.onrender.com/swagger-ui/index.html) |
+| Código-fonte | [github.com/AlanChristofer/tech-world](https://github.com/AlanChristofer/tech-world) |
+| Operação | [Production Guide](docs/production-guide.md) |
+
+> O backend utiliza o plano Free do Render. A primeira requisição após um período sem atividade pode sofrer cold start.
+
+## Arquitetura
 
 ```mermaid
-flowchart LR
-    UI[Next.js] --> API[REST API /api]
-    API --> UC[Application / Use Cases]
-    UC --> D[Domain]
-    UC --> P[Output Ports]
-    P --> A[MongoDB / Kafka Adapters]
-    A --> DB[(MongoDB)]
-    A --> K[(Kafka)]
+flowchart TB
+    User([Usuário]) -->|HTTPS| Vercel[Vercel<br/>Next.js 16 + React 19]
+    Vercel -->|REST / HTTPS| Render[Render<br/>Java 21 + Spring Boot 4.1.1]
+    Render --> Mongo[(MongoDB Atlas<br/>Persistência)]
+    Render --> Kafka[(Aiven Kafka<br/>Mensageria)]
+
+    GitHub[GitHub<br/>Código-fonte] --> CI[GitHub Actions<br/>CI]
+    GitHub --> Heartbeat[Production Heartbeat<br/>a cada 6 horas]
+    Heartbeat -->|POST /api/internal/heartbeat| Render
 ```
 
-O domínio Java não depende de Spring, MongoDB ou HTTP. Controllers chamam portas de entrada; casos de uso dependem de interfaces; adapters implementam persistência, mensageria e segurança. A representação interativa está disponível em `/architecture`.
+O frontend e o backend possuem deploy independente. O backend stateless acessa MongoDB Atlas e Aiven Kafka; o GitHub Actions valida o código e executa o heartbeat de produção.
 
-## Tech Stack
+## Stack
 
-- Java 21, Spring Boot 4.1.1, Spring Security, JWT, Bean Validation, Spring Data MongoDB e Spring Kafka
-- OpenAPI/Swagger, Actuator, Micrometer/Prometheus, JUnit, Mockito e Testcontainers
-- Next.js 16, React 19, TypeScript, TanStack Query, Tailwind CSS, Radix UI, Three.js e React Three Fiber
-- Docker Compose, GitHub Actions e GitLab CI
+### Backend
 
-## How to Run
+- Java 21 e Spring Boot 4.1.1
+- Spring MVC, Spring Security, JWT e Bean Validation
+- Spring Data MongoDB e Spring Kafka
+- Arquitetura Hexagonal / Clean Architecture
+- OpenAPI/Swagger, Actuator e Micrometer/Prometheus
+- JUnit, Mockito e Testcontainers 2.0.3
+- Docker
 
-```bash
-cp .env.example .env
-# Troque JWT_SECRET e ADMIN_PASSWORD antes de iniciar.
-docker compose up --build
-```
+### Frontend
 
-- Frontend: http://localhost:3000
-- API: http://localhost:8080/api/profile
-- Swagger UI via frontend: http://localhost:3000/swagger
-- Readiness: http://localhost:8080/actuator/health/readiness
+- Next.js 16.3.5, React 19.2.8 e TypeScript 7.0.2
+- Tailwind CSS 4.3.3
+- TanStack Query 5.103.2 e Radix UI 1.3.3
+- Three.js 0.186.0, React Three Fiber 9.7.0 e Drei 10.7.8
 
-Para executar sem containers, inicie MongoDB e Kafka, rode `./mvnw spring-boot:run` e, em outro terminal, `cd frontend && npm install && npm run dev`.
+### Infraestrutura
+
+- Vercel, Render, MongoDB Atlas e Aiven Kafka
+- Docker / Docker Compose
+- GitHub Actions
 
 ## Java Engineering Lab
 
-O **Java Engineering Lab** é uma demonstração técnica do próprio Tech World. `POST /api/lab/orders` valida e persiste um pedido no MongoDB, publica `OrderCreatedEvent` no Kafka e conclui o processamento de forma assíncrona.
+O Lab é uma demonstração técnica do portfólio, não uma alegação de experiência profissional. Ele executa um fluxo real com persistência e processamento assíncrono:
 
 ```mermaid
 flowchart LR
-    Client --> REST[OrderLabController]
-    REST --> UC[CreateOrderUseCase]
-    UC --> Domain[Order Domain]
-    Domain --> RP[OrderRepositoryPort]
-    Domain --> EP[EventPublisherPort]
-    RP --> Mongo[(MongoDB)]
-    EP --> Kafka[(Kafka)]
+    Frontend -->|REST| Controller[OrderLabController]
+    Controller --> UseCase[CreateOrderUseCase]
+    UseCase --> Domain[Domain]
+    Domain --> Repository[OrderRepositoryPort]
+    Repository --> Mongo[(MongoDB)]
+    Domain --> Events[EventPublisherPort]
+    Events --> Producer[Kafka Producer]
+    Producer --> Kafka[(Aiven Kafka)]
     Kafka --> Consumer[OrderCreatedConsumer]
     Consumer --> Mongo
 ```
 
-- Trace real por `traceId`, propagado no header `X-Trace-Id`, logs e evento Kafka.
-- Etapas consultáveis em `GET /api/lab/orders/{id}/trace`.
-- Health de Spring Boot, MongoDB e Kafka em `GET /api/lab/system-health`.
-- Métricas `portfolio.lab.orders.*` disponíveis no Actuator Prometheus protegido.
-- Pedidos e traces expiram após 24 horas por índices TTL do MongoDB.
-- O POST público possui rate limit leve por IP; excesso retorna HTTP 429.
+- `traceId` correlaciona resposta, etapas persistidas, evento e logs.
+- Pedidos e traces são retidos por 24 horas e removidos por índices TTL.
+- O endpoint de criação possui rate limiting por instância no profile de produção.
+- Health do Lab verifica aplicação, MongoDB e Kafka.
+- Producer e consumer usam o mesmo tópico `order-created`.
 
-Java 21 e Spring Boot representam a evolução técnica demonstrada pelo Tech World e pelo Java Engineering Lab. Não são apresentados como experiência profissional na Plansul.
-
-## Production Architecture
+## Production Heartbeat
 
 ```text
-Next.js
-   ↓
-Spring Boot
-├── MongoDB
-└── Kafka
+GitHub Actions
+  → POST /api/internal/heartbeat
+  → Spring Boot
+  → Kafka Producer
+  → Aiven / tech-world-heartbeat
+  → Heartbeat Consumer
 ```
 
-- Frontend: Vercel ou outro runtime compatível com Next.js.
-- Backend: serviço de container/cloud com Java 21.
-- Persistência: MongoDB Atlas ou MongoDB compatível.
-- Mensageria: serviço Kafka gerenciado compatível com SASL/SSL.
-
-O profile de produção é ativado com `SPRING_PROFILES_ACTIVE=prod`. O desenvolvimento local permanece no profile `local` e continua disponível por Docker Compose. Variáveis, ordem de provisionamento e smoke test estão documentados em [docs/deployment.md](docs/deployment.md).
-
-## Tests
-
-```bash
-./mvnw test
-cd frontend
-npm test
-npm run build
-```
-
-Os testes de integração utilizam MongoDB e Kafka com Testcontainers quando Docker está disponível.
+O workflow [`.github/workflows/production-heartbeat.yml`](.github/workflows/production-heartbeat.yml) roda manualmente ou a cada 6 horas. Ele publica um evento Kafka real, valida o caminho entre producer e consumer e acorda o serviço do Render durante a execução. Isso **não** impede permanentemente o sleep do plano Free.
 
 ## CI
 
-- `.github/workflows/ci.yml`: executa testes do backend e tipagem/build do frontend em pushes e pull requests.
-- `.gitlab-ci.yml`: mantém testes, builds e validação das imagens Docker.
-- Nenhum pipeline realiza deploy automático.
+O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) é executado em pushes e pull requests:
 
-## Configuration
+- backend: Java 21 + `./mvnw test`;
+- frontend: Node.js 22 + `npm ci`, `npm test` e `npm run build`.
 
-Perfil, links, experiências e projetos podem ser atualizados pelos endpoints `/api/admin/**` com JWT de administrador. Em produção, o seeder realiza somente bootstrap de coleções vazias e nunca substitui conteúdo já administrado.
+O CI valida o projeto; ele não realiza deploy automaticamente.
 
-Nenhum segredo deve ser enviado ao frontend ou versionado. Use `.env.example` apenas como referência local e configure secrets diretamente no provedor cloud.
+## Segurança
+
+- Secrets permanecem fora do Git e são configurados nos provedores.
+- Endpoints administrativos usam JWT com role `ADMIN`.
+- CORS aceita somente origens explícitas.
+- MongoDB Atlas restringe o acesso de rede.
+- Kafka usa usuário dedicado e ACLs de menor privilégio.
+- Frontend e backend se comunicam por HTTPS em produção.
+
+## Executando localmente
+
+Pré-requisito: Docker com Docker Compose.
+
+```bash
+cp .env.example .env
+# Substitua os placeholders locais de JWT_SECRET e ADMIN_PASSWORD.
+docker compose up --build
+```
+
+| Serviço | URL local |
+|---|---|
+| Frontend | http://localhost:3000 |
+| API | http://localhost:8080 |
+| Health | http://localhost:8080/api/health |
+| Swagger | http://localhost:8080/swagger-ui/index.html |
+| Readiness | http://localhost:8080/actuator/health/readiness |
+
+Para encerrar:
+
+```bash
+docker compose down
+```
+
+## Documentação completa
+
+> Para provisionamento, manutenção, segurança, troubleshooting e reconstrução completa da infraestrutura, consulte o [Production Guide](docs/production-guide.md).
