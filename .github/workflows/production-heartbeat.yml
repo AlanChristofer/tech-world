@@ -1,0 +1,28 @@
+name: Production Heartbeat
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Spring Boot to Kafka pipeline
+        env:
+          HEARTBEAT_TOKEN: ${{ secrets.HEARTBEAT_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$HEARTBEAT_TOKEN"
+          curl --fail-with-body --silent --show-error \
+            --retry 2 \
+            --retry-all-errors \
+            --connect-timeout 30 \
+            --max-time 120 \
+            --request POST \
+            --header "Authorization: Bearer ${HEARTBEAT_TOKEN}" \
+            https://tech-world-api-kr5w.onrender.com/api/internal/heartbeat

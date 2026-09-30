@@ -52,6 +52,8 @@ services:
       KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:-}
       KAFKA_SSL_TRUSTSTORE_LOCATION: ${KAFKA_SSL_TRUSTSTORE_LOCATION:-}
       KAFKA_SSL_TRUSTSTORE_TYPE: ${KAFKA_SSL_TRUSTSTORE_TYPE:-PEM}
+      HEARTBEAT_TOKEN: ${HEARTBEAT_TOKEN:-}
+      HEARTBEAT_TOPIC: ${HEARTBEAT_TOPIC:-tech-world-heartbeat}
     volumes:
       - ./secrets/kafka/ca.pem:/app/secrets/kafka/ca.pem:ro
     ports:

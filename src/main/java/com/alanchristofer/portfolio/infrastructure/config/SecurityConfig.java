@@ -1,6 +1,7 @@
 package com.alanchristofer.portfolio.infrastructure.config;
 
 import com.alanchristofer.portfolio.application.port.output.TokenPort;
+import com.alanchristofer.portfolio.infrastructure.security.HeartbeatTokenFilter;
 import com.alanchristofer.portfolio.infrastructure.security.JwtTokenAdapter;
 import com.alanchristofer.portfolio.infrastructure.security.RestAccessDeniedHandler;
 import com.alanchristofer.portfolio.infrastructure.security.RestAuthenticationEntryPoint;
@@ -27,6 +28,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -37,7 +40,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 public class SecurityConfig {
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationConverter jwtConverter) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationConverter jwtConverter,
+                                            @Value("${portfolio.heartbeat.token:}") String heartbeatToken) throws Exception {
+        DefaultBearerTokenResolver jwtTokenResolver = new DefaultBearerTokenResolver();
         http.csrf(csrf -> csrf.disable())
             .cors(Customizer.withDefaults())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -48,16 +53,24 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/profile", "/api/skills", "/api/experiences",
                     "/api/projects", "/api/projects/*", "/api/architecture", "/api/health", "/api/lab/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/lab/orders").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/internal/heartbeat").permitAll()
                 .requestMatchers("/api/auth/login", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/health", "/actuator/health/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/actuator/prometheus").hasRole("ADMIN")
                 .anyRequest().authenticated())
-            .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter))
+            .addFilterBefore(new HeartbeatTokenFilter(heartbeatToken), BearerTokenAuthenticationFilter.class)
+            .oauth2ResourceServer(oauth -> oauth
+                .bearerTokenResolver(request -> isHeartbeatRequest(request) ? null : jwtTokenResolver.resolve(request))
+                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter))
                 .authenticationEntryPoint(new RestAuthenticationEntryPoint()))
             .exceptionHandling(errors -> errors
                 .authenticationEntryPoint(new RestAuthenticationEntryPoint())
                 .accessDeniedHandler(new RestAccessDeniedHandler()));
         return http.build();
+    }
+
+    private static boolean isHeartbeatRequest(jakarta.servlet.http.HttpServletRequest request) {
+        return "POST".equals(request.getMethod()) && "/api/internal/heartbeat".equals(request.getRequestURI());
     }
 
     @Bean PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(12); }

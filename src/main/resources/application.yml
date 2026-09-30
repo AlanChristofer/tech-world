@@ -34,6 +34,11 @@ portfolio:
   admin:
     username: ${ADMIN_USERNAME:admin}
     password: ${ADMIN_PASSWORD:}
+  heartbeat:
+    token: ${HEARTBEAT_TOKEN:}
+    kafka:
+      topic: ${HEARTBEAT_TOPIC:tech-world-heartbeat}
+      group-id: tech-world-heartbeat
   lab:
     kafka:
       topic: ${ORDER_CREATED_TOPIC:order-created}
