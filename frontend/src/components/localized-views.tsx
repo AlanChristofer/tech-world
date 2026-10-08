@@ -163,7 +163,7 @@ export function RecruiterView({ profile, skills, experiences, projects }: { prof
   const [showAllSkills, setShowAllSkills] = useState(false);
   const orderedProjects = [
     { slug: "caraoque", name: "Caraôque?", pt: "Karaokê Full Stack com pontuação e sessões.", en: "Full-stack karaoke with scoring and sessions.", image: "/models/logokaraoke.png" },
-    { slug: "nexo-financeiro", name: "Nexo Financeiro", pt: "Controle financeiro pessoal.", en: "Personal finance control.", image: "/models/logonexo.png" },
+    { slug: "nexo-financeiro", name: "Nexo Financeiro", pt: "Controle financeiro pessoal.", en: "Personal finance control.", image: "/models/nexo-logo-transparent-dark.png" },
     { slug: "vidaplus", name: "VidaPlus", pt: "Sistema de gestão hospitalar.", en: "Hospital management system.", image: "/models/logovidaplus.png" },
   ].map((fallback) => {
     const project = projects.find((item) => item.slug === fallback.slug || item.slug.includes(fallback.slug.split("-")[0]));
