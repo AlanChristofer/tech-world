@@ -15,3 +15,6 @@ secrets/kafka/*
 .idea/
 .vscode/
 .DS_Store
+
+.vercel
+.env*

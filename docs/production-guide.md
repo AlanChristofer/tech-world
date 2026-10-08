@@ -278,6 +278,112 @@ CORS_ALLOWED_ORIGINS=http://localhost:3000,https://tech-world-opal.vercel.app
 
 Não use `*`: `SecurityConfig` rejeita lista vazia e wildcard.
 
+### Deploy manual para produção (sem Docker)
+
+Use este fluxo quando for necessário validar e publicar uma versão manualmente. Os secrets devem continuar cadastrados no Render/Vercel ou carregados apenas na sessão do terminal; nunca os passe diretamente na linha de comando nem os grave no repositório.
+
+#### 1. Validar os artefatos localmente
+
+Na raiz do repositório, valide primeiro o backend:
+
+```powershell
+.\mvnw.cmd clean package
+```
+
+Em Linux/macOS, use `./mvnw` no lugar de `.\mvnw.cmd`.
+
+Depois valide o frontend. As variáveis `API_URL`, `NEXT_PUBLIC_API_URL` e `NEXT_PUBLIC_SITE_URL` de produção precisam estar disponíveis **antes** do build, pois as variáveis `NEXT_PUBLIC_*` são incorporadas ao bundle:
+
+```powershell
+Set-Location frontend
+npm ci
+npm test
+npm run build
+Set-Location ..
+```
+
+Para iniciar localmente os artefatos já construídos, sem Docker:
+
+```powershell
+# Terminal 1 — backend; requer as variáveis de produção já carregadas na sessão
+$env:SPRING_PROFILES_ACTIVE = "prod"
+java -jar .\target\tech-world-api-0.0.1-SNAPSHOT.jar
+
+# Terminal 2 — frontend
+Set-Location frontend
+New-Item -ItemType Directory -Force .next\standalone\.next\static, .next\standalone\public | Out-Null
+Copy-Item -Recurse -Force .next\static\* .next\standalone\.next\static\
+Copy-Item -Recurse -Force public\* .next\standalone\public\
+Set-Location .next\standalone
+$env:PORT = "3000"
+$env:HOSTNAME = "0.0.0.0"
+node server.js
+```
+
+O frontend usa `output: "standalone"`; por isso o start manual copia `public` e `.next/static` para o artefato standalone e executa `server.js`, reproduzindo o runtime usado pela imagem Docker. Esse start local usa Atlas/Aiven quando as respectivas variáveis cloud estão carregadas. Não copie os valores secretos para este guia ou para scripts versionados. Para interromper os processos, use `Ctrl+C` em cada terminal.
+
+#### 2. Publicar pela branch `main`
+
+Este é o fluxo preferencial quando as integrações Git do Render e da Vercel estão com auto-deploy habilitado:
+
+```powershell
+git status --short
+git add <arquivos-alterados>
+git commit -m "tipo: descrição da alteração"
+git pull --rebase origin main
+git push origin main
+```
+
+O `git pull --rebase` mantém o histórico linear antes do push. Substitua `<arquivos-alterados>` por caminhos explícitos; não use `git add .` antes de conferir `.env`, certificados e outros arquivos locais. O push apenas publica o código: confirme nos painéis se os dois deploys realmente foram iniciados e concluídos.
+
+#### 3. Acionar manualmente o backend no Render
+
+No Render, copie o **Deploy Hook** do serviço `tech-world-api` em **Settings** e mantenha a URL como segredo fora do Git. Depois de carregar a URL na variável de sessão `RENDER_DEPLOY_HOOK_URL`, acione o deploy:
+
+```powershell
+if (-not $env:RENDER_DEPLOY_HOOK_URL) { throw "RENDER_DEPLOY_HOOK_URL não configurada" }
+Invoke-WebRequest -Method Post -Uri $env:RENDER_DEPLOY_HOOK_URL -UseBasicParsing
+```
+
+Equivalente em Linux/macOS:
+
+```bash
+test -n "$RENDER_DEPLOY_HOOK_URL"
+curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
+```
+
+A URL do Deploy Hook concede permissão para iniciar deploys e deve ser tratada como secret. Uma resposta HTTP `200` indica que o deploy começou; `202` indica que ele foi enfileirado atrás de outro deploy. Acompanhe os logs no Render até o serviço ficar saudável.
+
+#### 4. Publicar manualmente o frontend pela Vercel CLI
+
+Execute a partir da raiz do repositório. `login` e `link` são necessários apenas na primeira configuração da máquina/projeto:
+
+```powershell
+npx vercel@latest login
+npx vercel@latest link --cwd frontend
+npx vercel@latest pull --yes --environment=production --cwd frontend
+npx vercel@latest deploy --prod --cwd frontend
+```
+
+O comando `pull` baixa a configuração do projeto sem exigir que valores de produção sejam gravados em arquivos versionados. `deploy --prod` cria o deployment e aponta o domínio de produção configurado na Vercel para a nova versão.
+
+Os comandos `link`/`pull` podem criar a pasta local `frontend/.vercel/`. Ela contém o vínculo da máquina com o projeto e não deve ser adicionada ao Git; confira `git status --short` depois do deploy.
+
+#### 5. Validar a publicação
+
+Publique/valide o backend antes do frontend e confirme os endpoints públicos:
+
+```powershell
+Invoke-RestMethod https://tech-world-api-kr5w.onrender.com/api/health
+Invoke-RestMethod https://tech-world-api-kr5w.onrender.com/actuator/health/liveness
+Invoke-RestMethod https://tech-world-api-kr5w.onrender.com/actuator/health/readiness
+Invoke-WebRequest -Method Head https://tech-world-opal.vercel.app -UseBasicParsing
+```
+
+Em seguida, valide no navegador a home, o Modo Recrutador, o Java Engineering Lab e o Swagger. Finalize executando manualmente o Production Heartbeat e confirme nos logs do Render o consumo do evento.
+
+Referências oficiais: [Vercel CLI — deploy](https://vercel.com/docs/cli/deploy) e [Render — Deploy Hooks](https://render.com/docs/deploy-hooks).
+
 ## 7. Docker local
 
 O `docker-compose.yml` executa quatro serviços:
